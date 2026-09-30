@@ -19,7 +19,7 @@ class DocumentOrchestrator:
 
         for page_num in range(len(doc)):
             page = doc.load_page(page_num)
-            modality, meta = self.classifier.classify(page)
+            modality, meta = self.classifier.classify_page_optimized(page)
             p_display = page_num + 1
 
             if modality == "text-dense":

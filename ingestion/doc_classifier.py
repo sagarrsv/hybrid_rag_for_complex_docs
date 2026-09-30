@@ -16,7 +16,7 @@ class PageClassifier:
         self.min_sparse_drawings = min_sparse_drawings
         self.drawing_path_threshold = drawing_path_threshold
 
-    def classify_page_optimized_1(
+    def classify_page_optimized(
         self,
         page: pymupdf.Page,
     ) -> Tuple[str, Dict[str, Any]]:
