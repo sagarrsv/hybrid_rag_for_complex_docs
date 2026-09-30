@@ -36,7 +36,7 @@ class DocumentOrchestrator:
                 timings["text_pages"] += 1
             else:
                 t0 = time.time()
-                rec = self.visual_node.process_page(
+                rec = self.visual_node.embed_page(
                     page=page, 
                     doc_id=doc_id, 
                     page_num=p_display
