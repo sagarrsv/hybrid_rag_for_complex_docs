@@ -14,7 +14,7 @@ def main():
     orchestrator = DocumentOrchestrator(classifier, text_node, visual_node)
 
     # 3. Process test file
-    sample_pdf = "/path/to/Apple_financial_filing.pdf"
+    sample_pdf = "/kaggle/input/datasets/sagarrsv/test-paper-2/colmodernvbert_paper.pdf"
     result = orchestrator.ingest_document(sample_pdf)
 
     # 4. Inspect results
