@@ -67,11 +67,19 @@ class PageClassifier:
         total_words = len(text_content.split())
         avg_words_per_block = total_words / max(len(text_blocks), 1)
 
-        # 7. Native table detection (C-level)
+        # 7. Validated Table Candidate Check
         has_table = False
         if len(left_margins) >= 2 or vector_path_count >= 2:
             table_finder = page.find_tables()
-            has_table = len(table_finder.tables) > 0
+            for t in table_finder.tables:
+                if t.row_count >= 3 and t.col_count >= 2:
+                    # Fast cell validation: ensure cells aren't ghost placeholders
+                    extracted = t.extract()
+                    total_cells = t.row_count * t.col_count
+                    filled = sum(1 for row in extracted for cell in row if cell and str(cell).strip())
+                    if total_cells > 0 and (filled / total_cells) >= 0.40:
+                        has_table = True
+                        break
 
         # --- Structural Layout Triggers ---
         # Trigger A: Explicit tables or complex vector graphics (flowcharts/plots)
