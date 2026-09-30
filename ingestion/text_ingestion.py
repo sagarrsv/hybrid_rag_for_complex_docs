@@ -7,7 +7,7 @@ class TextDenseIngestionNode:
     def __init__(
         self,
         api_key: str = "AIzaSyDummyKey_ReplaceWithYourActualKey12345",
-        model_name: str = "text-embedding-004",
+        model_name: str = "gemini-embedding-001",
         chunk_size: int = 800,
         chunk_overlap: int = 100
     ):
