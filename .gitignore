@@ -1,0 +1,14 @@
+# Cache & Bytecode
+__pycache__/
+*.pyc
+
+# Environment variables & API keys
+.env
+
+# Large files & local virtual environments
+venv/
+.venv/
+*.pdf
+*.png
+*.jpg
+ingestion_timing.json
