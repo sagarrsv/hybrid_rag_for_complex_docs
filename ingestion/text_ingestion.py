@@ -2,33 +2,45 @@ import os
 from typing import List, Dict, Any
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from sentence_transformers import SentenceTransformer
 
 class TextDenseIngestionNode:
     def __init__(
         self,
-        api_key: str = "AIzaSyDummyKey_ReplaceWithYourActualKey12345",
-        model_name: str = "gemini-embedding-001",
-        chunk_size: int = 800,
-        chunk_overlap: int = 100
+        # api_key: str = "AIzaSyDummyKey_ReplaceWithYourActualKey12345",
+        model_name: str = "BAAI/bge-m3",
+        chunk_size: int = 1000,
+        chunk_overlap: int = 150,
+        device: str = None
     ):
         """
-        Text ingestion node using Google Generative AI Embeddings.
+        Text ingestion node using BGE M3 embeddings.
         Uses task_type='RETRIEVAL_DOCUMENT' for optimal index representation.
         """
         # Set or fallback to environment variable if available
-        self.api_key = os.getenv("GOOGLE_API_KEY", api_key)
+        # self.api_key = os.getenv("GOOGLE_API_KEY", api_key)
+
+        if device is None:
+            self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        else:
+            self.device = device
+
+        print(f"Loading {model_name} on device: {self.device}...")
         
         self.splitter = RecursiveCharacterTextSplitter(
             chunk_size=chunk_size,
             chunk_overlap=chunk_overlap,
             separators=["\n\n", "\n", ". ", " ", ""]
         )
-        
-        self.embedder = GoogleGenerativeAIEmbeddings(
-            model=model_name,
-            google_api_key=self.api_key,
-            task_type="RETRIEVAL_DOCUMENT"
-        )
+        # Loads BAAI/bge-m3 directly into GPU memory
+        self.model = SentenceTransformer(model_name, device=self.device)
+
+
+        # self.embedder = GoogleGenerativeAIEmbeddings(
+        #     model=model_name,
+        #     google_api_key=self.api_key,
+        #     task_type="RETRIEVAL_DOCUMENT"
+        # )
 
     def process_page(
         self,
@@ -48,8 +60,16 @@ class TextDenseIngestionNode:
         if not chunks:
             return []
 
-        # Single batch API call for all chunks on this page
-        embeddings = self.embedder.embed_documents(chunks)
+        # Forward pass on GPU: returns 1024-dimensional normalized vectors
+        embeddings = self.model.encode(
+            chunks,
+            batch_size=16,
+            normalize_embeddings=True,
+            show_progress_bar=False
+        ).tolist()
+
+        # # Single batch API call for all chunks on this page
+        # embeddings = self.embedder.embed_documents(chunks)
 
         records = []
         for idx, (chunk, emb) in enumerate(zip(chunks, embeddings)):

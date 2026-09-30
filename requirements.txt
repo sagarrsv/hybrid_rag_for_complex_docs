@@ -5,3 +5,4 @@ transformers
 colpali-engine
 torch
 pillow
+sentence-transformers

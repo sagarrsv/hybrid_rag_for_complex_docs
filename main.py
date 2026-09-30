@@ -23,7 +23,7 @@ def main():
     # 1. Initialize components
     print("Loading models and initializing pipelines...")
     classifier = PageClassifier()
-    text_node = TextDenseIngestionNode(api_key=os.getenv("GOOGLE_API_KEY", "your_dummy_key"))
+    text_node = TextDenseIngestionNode()
     visual_node = ColModernVBertPipeline()
 
     # 2. Wire orchestrator
