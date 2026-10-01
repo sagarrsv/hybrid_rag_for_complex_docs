@@ -81,12 +81,16 @@ class DocumentOrchestrator:
             if visual_records:
                 print(f"   -> Upserting {len(visual_records)} visual pages to Qdrant...")
                 self.storage_node.upsert_visual_records(visual_records)
-                
+
+        visual_pages = timings["visual_pages"]
+        total_p = max(len(doc), 1)
+        visual_percentage = round((visual_pages / total_p) * 100, 2)
+
         return {
             "doc_id": doc_id,
             "total_pages": len(doc),
             "text_records": text_records,
             "visual_records": visual_records,
-            "metrics": timings
-            
+            "metrics": timings,
+            "visual_pct": visual_percentage            
         }
