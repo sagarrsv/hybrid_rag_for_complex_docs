@@ -25,11 +25,16 @@ class DocumentOrchestrator:
 
         text_records: List[Dict[str, Any]] = []
         visual_records: List[Dict[str, Any]] = []
-        timings = {"text_pages": 0, "visual_pages": 0, "text_time": 0.0, "visual_time": 0.0}
+        timings = {"text_pages": 0, "visual_pages": 0, "text_time": 0.0, "visual_time": 0.0, "classifier_time": 0.0}
 
         for page_num in range(len(doc)):
             page = doc.load_page(page_num)
+
+            # --- Measure Classifier Latency ---
+            tc0 = time.time()
             modality, meta = self.classifier.classify_page_optimized(page)
+            timings["classifier_time"] += (time.time() - tc0)
+
             p_display = page_num + 1
             
             print(f"\n[Page {p_display}/{len(doc)}] Decision: --> {modality.upper()} <--")

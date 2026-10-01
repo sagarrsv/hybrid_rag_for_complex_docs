@@ -105,6 +105,7 @@ def main():
             text_p = m["text_pages"]
             vis_p = m["visual_pages"]
             n_chunks = len(result["text_records"])
+            doc_total_time = m["text_time"] + m["visual_time"] + m["classifier_time"]
             
             # Aggregate corpus totals
             corpus_summary["total_pages"] += total_pages
@@ -122,8 +123,10 @@ def main():
                 "text_chunks": n_chunks,
                 "text_time_sec": round(m["text_time"], 2),
                 "visual_time_sec": round(m["visual_time"], 2),
+                "total_time_sec": round(doc_total_time, 2),
                 "avg_text_sec_per_page": round(m["text_time"] / max(text_p, 1), 3),
-                "avg_vis_sec_per_page": round(m["visual_time"] / max(vis_p, 1), 3)
+                "avg_vis_sec_per_page": round(m["visual_time"] / max(vis_p, 1), 3),
+                "avg_clf_ms_per_page": round((m["classifier_time"] / max(total_pages, 1)) * 1000, 1),
             })
 
             # Checkpoint metadata to disk (avoid keeping all multivectors in RAM)
@@ -149,13 +152,13 @@ def main():
     print(f"\n📁 Saved per-document metrics report to: {summary_path}")
 
     # 2. Print Document-by-Document Breakdown Table
-    print("\n" + "=" * 95)
-    print(f"{'Doc ID':<35} | {'Pages':<5} | {'Txt/Vis':<8} | {'Chunks':<6} | {'Txt Lat (s)':<11} | {'Vis Lat (s)':<11}")
-    print("-" * 95)
+    print("\n" + "=" * 105)
+    print(f"{'Doc ID':<35} | {'Pages':<5} | {'Txt/Vis':<8} | {'Chunks':<6} | {'Total(s)':<8} | {'Txt(s/p)':<8} | {'Vis(s/p)':<8} | {'Clf(ms/p)':<9}")
+    print("-" * 105)
     for doc in corpus_summary["docs_processed"]:
-        txt_vis_ratio = f"{doc['text_pages']}/{doc['visual_pages']}"
-        print(f"{doc['doc_id'][:35]:<35} | {doc['total_pages']:<5} | {txt_vis_ratio:<8} | {doc['text_chunks']:<6} | {doc['text_time_sec']:<11} | {doc['visual_time_sec']:<11}")
-    print("=" * 95)
+        txt_vis = f"{doc['text_pages']}/{doc['visual_pages']}"
+        print(f"{doc['doc_id'][:35]:<35} | {doc['total_pages']:<5} | {txt_vis:<8} | {doc['text_chunks']:<6} | {doc['total_time_sec']:<8.2f} | {doc['avg_text_sec_per_page']:<8.3f} | {doc['avg_vis_sec_per_page']:<8.3f} | {doc['avg_clf_ms_per_page']:<9.1f}")
+    print("=" * 105)
 
     # 3. Final Overall Ingestion Summary
     avg_page_time = total_time / max(corpus_summary["total_pages"], 1)
