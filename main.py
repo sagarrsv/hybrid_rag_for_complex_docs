@@ -36,24 +36,6 @@ def parse_args():
     )
     return parser.parse_args()
 
-def resolve_qdrant_credentials(use_local: bool):
-    """Retrieves Qdrant Cloud URL and Key from env or Kaggle Secrets."""
-    if use_local:
-        return None, None
-
-    qdrant_url = os.getenv("QDRANT_URL")
-    qdrant_api_key = os.getenv("QDRANT_API_KEY")
-
-    if not qdrant_url or not qdrant_api_key:
-        try:
-            from kaggle_secrets import UserSecretsClient
-            secrets = UserSecretsClient()
-            qdrant_url = secrets.get_secret("QDRANT_URL")
-            qdrant_api_key = secrets.get_secret("QDRANT_API_KEY")
-        except Exception:
-            pass
-
-    return qdrant_url, qdrant_api_key
 
 def main():
     args = parse_args()
@@ -73,7 +55,9 @@ def main():
     print(f"Found {len(pdf_files)} PDF document(s) in {args.data_dir}")
 
     # 2. Connect to Qdrant (Cloud or Local disk)
-    qdrant_url, qdrant_api_key = resolve_qdrant_credentials(args.local_db)
+    qdrant_url = os.getenv("QDRANT_URL")
+    qdrant_api_key = os.getenv("QDRANT_API_KEY")
+
     if qdrant_url and qdrant_api_key:
         print(f"Connecting to Qdrant Cloud: {qdrant_url}")
         storage_node = QdrantStorageNode(url=qdrant_url, api_key=qdrant_api_key)
