@@ -119,7 +119,7 @@ class QdrantStorageNode:
         self._retry_upsert(self.text_collection, points)
         print(f"   Stored {len(points)} text vectors into '{self.text_collection}' (Deterministic IDs).")
 
-    def upsert_visual_records(self, records: List[Dict[str, Any]]):
+    def upsert_visual_records(self, records: List[Dict[str, Any]],batch_size: int = 8):
         if not records:
             return
 
@@ -146,6 +146,9 @@ class QdrantStorageNode:
                     }
                 )
             )
+            # Upsert in small batches to stay under Qdrant Cloud's 32MB payload cap
+        for i in range(0, len(points), batch_size):
+            batch = points[i : i + batch_size]
+            self._retry_upsert(self.visual_collection, batch)
 
-        self._retry_upsert(self.visual_collection, points)
-        print(f"   Stored {len(points)} multivector page(s) into '{self.visual_collection}' (Deterministic IDs).")
+        print(f"   Stored {len(points)} multivector page(s) into '{self.visual_collection}' (in batches of {batch_size}).")
