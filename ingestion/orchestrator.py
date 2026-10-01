@@ -4,10 +4,11 @@ import pymupdf
 from typing import Dict, Any, List
 
 class DocumentOrchestrator:
-    def __init__(self, classifier, text_node, visual_node):
+    def __init__(self, classifier, text_node, visual_node, storage_node = None):
         self.classifier = classifier
         self.text_node = text_node
         self.visual_node = visual_node
+        self.storage_node = storage_node
 
     def ingest_document(self, pdf_path: str) -> Dict[str, Any]:
 
@@ -71,11 +72,21 @@ class DocumentOrchestrator:
                 emb_shape = tuple(records["multivector"].shape)
                 print(f"   ✓ [Visual Ingestion] Latency: {elapsed:.2f}s | "
                       f"Output Tensor Shape: {emb_shape} (ColModernVBERT patch multivectors)")
-
+        
+        # Upsert directly to Qdrant if a storage node is configured
+        if self.storage_node:
+            if text_records:
+                print(f"   -> Upserting {len(text_records)} text chunks to Qdrant...")
+                self.storage_node.upsert_text_records(text_records)
+            if visual_records:
+                print(f"   -> Upserting {len(visual_records)} visual pages to Qdrant...")
+                self.storage_node.upsert_visual_records(visual_records)
+                
         return {
             "doc_id": doc_id,
             "total_pages": len(doc),
             "text_records": text_records,
             "visual_records": visual_records,
             "metrics": timings
+            
         }

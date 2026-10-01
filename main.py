@@ -7,6 +7,7 @@ from ingestion.doc_classifier import PageClassifier
 from ingestion.text_ingestion import TextDenseIngestionNode
 from ingestion.visual_ingestion import ColModernVBertPipeline
 from ingestion.orchestrator import DocumentOrchestrator
+from ingestion.vector_store import QdrantStorageNode
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Multi-document batch ingestion for research papers")
@@ -28,7 +29,31 @@ def parse_args():
         default="./ingestion_output",
         help="Directory to save the processed metadata checkpoints"
     )
+    parser.add_argument(
+        "--local_db",
+        action="store_true",
+        help="If set, uses local disk storage path './qdrant_local_db' instead of Qdrant Cloud"
+    )
     return parser.parse_args()
+
+def resolve_qdrant_credentials(use_local: bool):
+    """Retrieves Qdrant Cloud URL and Key from env or Kaggle Secrets."""
+    if use_local:
+        return None, None
+
+    qdrant_url = os.getenv("QDRANT_URL")
+    qdrant_api_key = os.getenv("QDRANT_API_KEY")
+
+    if not qdrant_url or not qdrant_api_key:
+        try:
+            from kaggle_secrets import UserSecretsClient
+            secrets = UserSecretsClient()
+            qdrant_url = secrets.get_secret("QDRANT_URL")
+            qdrant_api_key = secrets.get_secret("QDRANT_API_KEY")
+        except Exception:
+            pass
+
+    return qdrant_url, qdrant_api_key
 
 def main():
     args = parse_args()
@@ -47,7 +72,16 @@ def main():
 
     print(f"Found {len(pdf_files)} PDF document(s) in {args.data_dir}")
 
-    # 2. Initialize models ONCE (keeps weights resident in GPU memory)
+    # 2. Connect to Qdrant (Cloud or Local disk)
+    qdrant_url, qdrant_api_key = resolve_qdrant_credentials(args.local_db)
+    if qdrant_url and qdrant_api_key:
+        print(f"Connecting to Qdrant Cloud: {qdrant_url}")
+        storage_node = QdrantStorageNode(url=qdrant_url, api_key=qdrant_api_key)
+    else:
+        print("Initializing Qdrant locally at './qdrant_local_db'...")
+        storage_node = QdrantStorageNode(path="./qdrant_local_db")
+
+    # 3. Initialize models ONCE (keeps weights resident in GPU memory)
     print("\n[Init] Initializing Classifier and Embedding Pipelines...")
     classifier = PageClassifier()
     text_node = TextDenseIngestionNode()  # BAAI/bge-m3 local
@@ -56,7 +90,8 @@ def main():
     orchestrator = DocumentOrchestrator(
         classifier=classifier,
         text_node=text_node,
-        visual_node=visual_node
+        visual_node=visual_node,
+        storage_node=storage_node
     )
 
     # 3. Batch Loop over each PDF

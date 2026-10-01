@@ -6,3 +6,4 @@ colpali-engine
 torch
 pillow
 sentence-transformers
+qdrant-client

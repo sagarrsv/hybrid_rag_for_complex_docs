@@ -37,7 +37,7 @@ class ColModernVBertPipeline:
         with torch.no_grad():
             # Use process_images instead of the standard __call__ to ensure dummy text tokens are generated
             inputs = self.processor.process_images([img]).to(self.device)
-            emb = self.model(**inputs)
+            emb = self.model(**inputs) ##[Batch, SQ len, embdd dim]-->[1,1149,128]
             
             # Move to CPU immediately to free MPS/CUDA RAM
             page_emb = emb[0].cpu()

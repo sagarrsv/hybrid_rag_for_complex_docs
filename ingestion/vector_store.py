@@ -54,7 +54,7 @@ class QdrantStorageNode:
             )
             print(f"Created Qdrant collection: {self.visual_collection} (multivector=128, MaxSim)")
 
-    def _init_payload_indexes(self):
+    def _init_payload_indexes(self): #creates metadata for pagenum and docid
         """Creates indexes for fast metadata filtering (neighbor-page retrieval)."""
         collections = [self.text_collection, self.visual_collection]
         for col in collections:
@@ -74,7 +74,7 @@ class QdrantStorageNode:
                 pass
 
     @staticmethod
-    def _deterministic_uuid(key: str) -> str:
+    def _deterministic_uuid(key: str) -> str: #Convert chunk id to deterministic uuid
         """Derives a deterministic UUIDv5 so reruns overwrite rather than duplicate."""
         return str(uuid.uuid5(uuid.NAMESPACE_DNS, key))
 
