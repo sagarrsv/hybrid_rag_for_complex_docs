@@ -140,7 +140,7 @@ class QdrantStorageNode:
                         "doc_id": r["doc_id"],
                         "page_num": r["page_num"],
                         "modality": r["modality"],
-                        "doc_path": r.get("doc_path", ""),
+                        # "doc_path": r.get("doc_path", ""),
                         "n_vectors": r.get("n_vectors", len(multivec_list)),
                         "metadata": r.get("metadata", {})
                     }

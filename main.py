@@ -101,15 +101,29 @@ def main():
 
             # Extract metrics
             m = result["metrics"]
-            corpus_summary["total_pages"] += result["total_pages"]
-            corpus_summary["text_dense_pages"] += m["text_pages"]
-            corpus_summary["layout_heavy_pages"] += m["visual_pages"]
-            corpus_summary["text_chunks"] += len(result["text_records"])
+            total_pages = result["total_pages"]
+            text_p = m["text_pages"]
+            vis_p = m["visual_pages"]
+            n_chunks = len(result["text_records"])
+            
+            # Aggregate corpus totals
+            corpus_summary["total_pages"] += total_pages
+            corpus_summary["text_dense_pages"] += text_p
+            corpus_summary["layout_heavy_pages"] += vis_p
+            corpus_summary["text_chunks"] += n_chunks
+
+            # Record per-document metrics for the ablation / systems table
             corpus_summary["docs_processed"].append({
                 "doc_id": result["doc_id"],
-                "pages": result["total_pages"],
-                "text_pages": m["text_pages"],
-                "visual_pages": m["visual_pages"]
+                "total_pages": total_pages,
+                "text_pages": text_p,
+                "visual_pages": vis_p,
+                "visual_pct": round((vis_p / max(total_pages, 1)) * 100, 1),
+                "text_chunks": n_chunks,
+                "text_time_sec": round(m["text_time"], 2),
+                "visual_time_sec": round(m["visual_time"], 2),
+                "avg_text_sec_per_page": round(m["text_time"] / max(text_p, 1), 3),
+                "avg_vis_sec_per_page": round(m["visual_time"] / max(vis_p, 1), 3)
             })
 
             # Checkpoint metadata to disk (avoid keeping all multivectors in RAM)
@@ -127,13 +141,32 @@ def main():
 
     # 4. Final Corpus Logging
     total_time = time.time() - total_start
+
+    # 1. Save all per-document records into a single central JSON file
+    summary_path = os.path.join(args.output_dir, "corpus_ingestion_report.json")
+    with open(summary_path, "w") as f:
+        json.dump(corpus_summary, f, indent=2)
+    print(f"\n📁 Saved per-document metrics report to: {summary_path}")
+
+    # 2. Print Document-by-Document Breakdown Table
+    print("\n" + "=" * 95)
+    print(f"{'Doc ID':<35} | {'Pages':<5} | {'Txt/Vis':<8} | {'Chunks':<6} | {'Txt Lat (s)':<11} | {'Vis Lat (s)':<11}")
+    print("-" * 95)
+    for doc in corpus_summary["docs_processed"]:
+        txt_vis_ratio = f"{doc['text_pages']}/{doc['visual_pages']}"
+        print(f"{doc['doc_id'][:35]:<35} | {doc['total_pages']:<5} | {txt_vis_ratio:<8} | {doc['text_chunks']:<6} | {doc['text_time_sec']:<11} | {doc['visual_time_sec']:<11}")
+    print("=" * 95)
+
+    # 3. Final Overall Ingestion Summary
+    avg_page_time = total_time / max(corpus_summary["total_pages"], 1)
     print("\n================== CORPUS INGESTION COMPLETE ==================")
     print(f"Total Documents Processed : {len(corpus_summary['docs_processed'])}")
     print(f"Total Pages Processed     : {corpus_summary['total_pages']}")
-    print(f"Total Text-Dense Pages    : {corpus_summary['text_dense_pages']} (Generated {corpus_summary['text_chunks']} chunks)")
+    print(f"Total Text-Dense Pages    : {corpus_summary['text_dense_pages']} ({corpus_summary['text_chunks']} chunks)")
     print(f"Total Layout-Heavy Pages  : {corpus_summary['layout_heavy_pages']}")
-    print(f"Total Wall Time           : {total_time:.2f}s ({total_time / max(corpus_summary['total_pages'], 1):.2f}s/page)")
-    print("===============================================================\n")
+    print(f"Total Wall Time           : {total_time:.2f}s ({avg_page_time:.2f}s/page)")
+    print("=" * 95 + "\n")
+
 
 if __name__ == "__main__":
     main()
