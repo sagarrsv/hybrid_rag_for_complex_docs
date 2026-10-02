@@ -2,3 +2,4 @@ from .doc_classifier import PageClassifier
 from .visual_ingestion import ColModernVBertPipeline
 from .text_ingestion import TextDenseIngestionNode
 from .orchestrator import DocumentOrchestrator
+from .vector_store import QdrantStorageNode

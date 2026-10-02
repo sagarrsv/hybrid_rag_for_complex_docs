@@ -7,6 +7,7 @@ from ingestion.doc_classifier import PageClassifier
 from ingestion.text_ingestion import TextDenseIngestionNode
 from ingestion.visual_ingestion import ColModernVBertPipeline
 from ingestion.orchestrator import DocumentOrchestrator
+from ingestion.vector_store import QdrantStorageNode
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Multi-document batch ingestion for research papers")
@@ -28,7 +29,13 @@ def parse_args():
         default="./ingestion_output",
         help="Directory to save the processed metadata checkpoints"
     )
+    parser.add_argument(
+        "--local_db",
+        action="store_true",
+        help="If set, uses local disk storage path './qdrant_local_db' instead of Qdrant Cloud"
+    )
     return parser.parse_args()
+
 
 def main():
     args = parse_args()
@@ -47,7 +54,18 @@ def main():
 
     print(f"Found {len(pdf_files)} PDF document(s) in {args.data_dir}")
 
-    # 2. Initialize models ONCE (keeps weights resident in GPU memory)
+    # 2. Connect to Qdrant (Cloud or Local disk)
+    qdrant_url = os.getenv("QDRANT_URL")
+    qdrant_api_key = os.getenv("QDRANT_API_KEY")
+
+    if qdrant_url and qdrant_api_key:
+        print(f"Connecting to Qdrant Cloud: {qdrant_url}")
+        storage_node = QdrantStorageNode(url=qdrant_url, api_key=qdrant_api_key)
+    else:
+        print("Initializing Qdrant locally at './qdrant_local_db'...")
+        storage_node = QdrantStorageNode(path="./qdrant_local_db")
+
+    # 3. Initialize models ONCE (keeps weights resident in GPU memory)
     print("\n[Init] Initializing Classifier and Embedding Pipelines...")
     classifier = PageClassifier()
     text_node = TextDenseIngestionNode()  # BAAI/bge-m3 local
@@ -56,7 +74,8 @@ def main():
     orchestrator = DocumentOrchestrator(
         classifier=classifier,
         text_node=text_node,
-        visual_node=visual_node
+        visual_node=visual_node,
+        storage_node=storage_node
     )
 
     # 3. Batch Loop over each PDF
@@ -82,15 +101,32 @@ def main():
 
             # Extract metrics
             m = result["metrics"]
-            corpus_summary["total_pages"] += result["total_pages"]
-            corpus_summary["text_dense_pages"] += m["text_pages"]
-            corpus_summary["layout_heavy_pages"] += m["visual_pages"]
-            corpus_summary["text_chunks"] += len(result["text_records"])
+            total_pages = result["total_pages"]
+            text_p = m["text_pages"]
+            vis_p = m["visual_pages"]
+            n_chunks = len(result["text_records"])
+            doc_total_time = m["text_time"] + m["visual_time"] + m["classifier_time"]
+            
+            # Aggregate corpus totals
+            corpus_summary["total_pages"] += total_pages
+            corpus_summary["text_dense_pages"] += text_p
+            corpus_summary["layout_heavy_pages"] += vis_p
+            corpus_summary["text_chunks"] += n_chunks
+
+            # Record per-document metrics for the ablation / systems table
             corpus_summary["docs_processed"].append({
                 "doc_id": result["doc_id"],
-                "pages": result["total_pages"],
-                "text_pages": m["text_pages"],
-                "visual_pages": m["visual_pages"]
+                "total_pages": total_pages,
+                "text_pages": text_p,
+                "visual_pages": vis_p,
+                "visual_pct": round((vis_p / max(total_pages, 1)) * 100, 1),
+                "text_chunks": n_chunks,
+                "text_time_sec": round(m["text_time"], 2),
+                "visual_time_sec": round(m["visual_time"], 2),
+                "total_time_sec": round(doc_total_time, 2),
+                "avg_text_sec_per_page": round(m["text_time"] / max(text_p, 1), 3),
+                "avg_vis_sec_per_page": round(m["visual_time"] / max(vis_p, 1), 3),
+                "avg_clf_ms_per_page": round((m["classifier_time"] / max(total_pages, 1)) * 1000, 1),
             })
 
             # Checkpoint metadata to disk (avoid keeping all multivectors in RAM)
@@ -108,13 +144,32 @@ def main():
 
     # 4. Final Corpus Logging
     total_time = time.time() - total_start
+
+    # 1. Save all per-document records into a single central JSON file
+    summary_path = os.path.join(args.output_dir, "corpus_ingestion_report.json")
+    with open(summary_path, "w") as f:
+        json.dump(corpus_summary, f, indent=2)
+    print(f"\n📁 Saved per-document metrics report to: {summary_path}")
+
+    # 2. Print Document-by-Document Breakdown Table
+    print("\n" + "=" * 105)
+    print(f"{'Doc ID':<35} | {'Pages':<5} | {'Txt/Vis':<8} | {'Chunks':<6} | {'Total(s)':<8} | {'Txt(s/p)':<8} | {'Vis(s/p)':<8} | {'Clf(ms/p)':<9}")
+    print("-" * 105)
+    for doc in corpus_summary["docs_processed"]:
+        txt_vis = f"{doc['text_pages']}/{doc['visual_pages']}"
+        print(f"{doc['doc_id'][:35]:<35} | {doc['total_pages']:<5} | {txt_vis:<8} | {doc['text_chunks']:<6} | {doc['total_time_sec']:<8.2f} | {doc['avg_text_sec_per_page']:<8.3f} | {doc['avg_vis_sec_per_page']:<8.3f} | {doc['avg_clf_ms_per_page']:<9.1f}")
+    print("=" * 105)
+
+    # 3. Final Overall Ingestion Summary
+    avg_page_time = total_time / max(corpus_summary["total_pages"], 1)
     print("\n================== CORPUS INGESTION COMPLETE ==================")
     print(f"Total Documents Processed : {len(corpus_summary['docs_processed'])}")
     print(f"Total Pages Processed     : {corpus_summary['total_pages']}")
-    print(f"Total Text-Dense Pages    : {corpus_summary['text_dense_pages']} (Generated {corpus_summary['text_chunks']} chunks)")
+    print(f"Total Text-Dense Pages    : {corpus_summary['text_dense_pages']} ({corpus_summary['text_chunks']} chunks)")
     print(f"Total Layout-Heavy Pages  : {corpus_summary['layout_heavy_pages']}")
-    print(f"Total Wall Time           : {total_time:.2f}s ({total_time / max(corpus_summary['total_pages'], 1):.2f}s/page)")
-    print("===============================================================\n")
+    print(f"Total Wall Time           : {total_time:.2f}s ({avg_page_time:.2f}s/page)")
+    print("=" * 95 + "\n")
+
 
 if __name__ == "__main__":
     main()
