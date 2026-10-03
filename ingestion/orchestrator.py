@@ -75,9 +75,17 @@ class DocumentOrchestrator:
             timings["visual_pages"] += 1
             visual_records.append(v_rec)
 
-            print(f"   [P.{p_display}/{len(doc)}] Router: {page_type:<12} | "
-                  f"Text: {len(t_recs)} chunks | Visual: {v_rec['n_vectors']} tokens"
-                  f"text_latency : {elapsed_txt:.2f}s | Vis_latency : {elapsed_vis:.2f}s")
+            curr_chunks = len(text_records)
+            curr_vis = len(visual_records)
+            v_dim = f"({v_rec['n_vectors']}, 128)"
+
+            print(
+                f"   [P.{p_display:02d}/{len(doc):02d}] "
+                f"Tag: {page_type:<12} | "
+                f"Text: +{len(t_recs):02d} ({curr_chunks} chunks/{p_display} pgs) | "
+                f"Visual: {curr_vis}/{len(doc)} pgs {v_dim} fp16 | "
+                f"Txt_lat: {elapsed_txt:.2f}s | Vis_lat: {elapsed_vis:.2f}s"
+            )
 
         # 4. Save vectors to Kaggle output directory
         if self.exporter:

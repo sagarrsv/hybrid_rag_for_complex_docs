@@ -61,6 +61,7 @@ def main():
         exporter=exporter
     )
 
+    p_total = result["total_pages"]
     # 2. Batch Loop over each PDF
     total_start = time.time()
     corpus_summary = {
@@ -85,6 +86,11 @@ def main():
             vis_routed = result["routed_visual_pages"]
             n_chunks = result["text_chunks"]
             doc_total_time = m["text_time"] + m["visual_time"] + m["classifier_time"]
+
+            print(f"\n   [Done] {doc_filename}:")
+            print(f"      - Text Branch   : {total_p}/{total_p} pages -> {result['text_chunks']} chunks")
+            print(f"      - Visual Branch : {total_p}/{total_p} pages -> {total_p} multi-vectors")
+            print(f"      - Router Tags   : {result['routed_text_pages']} text-dense | {result['routed_visual_pages']} layout-heavy")
 
             # Aggregate corpus totals
             corpus_summary["total_pages"] += total_p
