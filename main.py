@@ -61,7 +61,6 @@ def main():
         exporter=exporter
     )
 
-    p_total = result["total_pages"]
     # 2. Batch Loop over each PDF
     total_start = time.time()
     corpus_summary = {
