@@ -1,6 +1,5 @@
 pymupdf
 langchain-text-splitters
-langchain-google-genai
 transformers
 colpali-engine
 torch
