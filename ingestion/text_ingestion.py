@@ -48,6 +48,7 @@ class TextDenseIngestionNode:
         text: str,
         doc_id: str,
         page_num: int,
+        page_type: str = "text-dense",
         metadata: Dict[str, Any] = None
     ) -> List[Dict[str, Any]]:
         """
@@ -78,6 +79,7 @@ class TextDenseIngestionNode:
                 "chunk_id": f"{doc_id}_p{page_num}_c{idx}",
                 "doc_id": doc_id,
                 "page_num": page_num,
+                "page_type": page_type, # Saved as 'text-dense' or 'layout-heavy'
                 "modality": "text-dense",
                 "text": chunk,
                 "vector": emb,  # 1D vector (dim: 768)

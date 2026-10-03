@@ -3,3 +3,4 @@ from .visual_ingestion import ColModernVBertPipeline
 from .text_ingestion import TextDenseIngestionNode
 from .orchestrator import DocumentOrchestrator
 from .vector_store import QdrantStorageNode
+from .file_exporter import DiskStorageExporter

@@ -27,7 +27,7 @@ class ColModernVBertPipeline:
         self.processor = ColModernVBertProcessor.from_pretrained(self.model_name)
         print("Model loaded successfully.")
 
-    def embed_page(self, page: pymupdf.Page, doc_id: str, page_num: int) -> Dict[str, Any]:
+    def embed_page(self, page: pymupdf.Page, doc_id: str, page_num: int, page_type: str = "layout-heavy") -> Dict[str, Any]:
         """
         Renders page to image and extracts ColModernVBERT multi-vector embeddings.
         """
@@ -39,8 +39,8 @@ class ColModernVBertPipeline:
             inputs = self.processor.process_images([img]).to(self.device)
             emb = self.model(**inputs) ##[Batch, SQ len, embdd dim]-->[1,1149,128]
             
-            # Move to CPU immediately to free MPS/CUDA RAM
-            page_emb = emb[0].cpu()
+            # Convert bfloat16 -> float16 numpy array
+            page_emb_fp16 = emb[0].to(torch.float16).cpu().numpy()
 
             del inputs, emb
             gc.collect()
@@ -51,9 +51,9 @@ class ColModernVBertPipeline:
             "chunk_id": f"{doc_id}_p{page_num}",
             "doc_id": doc_id,
             "page_num": page_num,
-            "modality": "layout-heavy",
-            "multivector": page_emb,  # Shape: torch.Size([1149, 128])
-            "n_vectors": page_emb.shape[0]
+            "page_type": page_type,
+            "multivector": page_emb_fp16,  # Shape: torch.Size([1149, 128])
+            "n_vectors": page_emb_fp16.shape[0]
         }
 
     def compute_maxsim(self, queries: List[str], page_embeddings: List[torch.Tensor]) -> List[List[Tuple[float, int]]]:

@@ -4,98 +4,94 @@ import pymupdf
 from typing import Dict, Any, List
 
 class DocumentOrchestrator:
-    def __init__(self, classifier, text_node, visual_node, storage_node = None):
+    def __init__(self, classifier, text_node, visual_node, exporter=None):
         self.classifier = classifier
         self.text_node = text_node
         self.visual_node = visual_node
-        self.storage_node = storage_node
+        self.exporter = exporter
 
     def ingest_document(self, pdf_path: str) -> Dict[str, Any]:
-
         if not os.path.exists(pdf_path):
             raise FileNotFoundError(f"Document not found at: {pdf_path}")
         
         doc_id = os.path.splitext(os.path.basename(pdf_path))[0]
         doc = pymupdf.open(pdf_path)
-
         print(f"\n=======================================================")
-        print(f"Starting Routed Ingestion: {doc_id} ({len(doc)} pages)")
-        print(f"File Path: {pdf_path}")
+        print(f"Generating Embeddings for: {doc_id} ({len(doc)} pages)")
         print(f"=======================================================")
 
         text_records: List[Dict[str, Any]] = []
         visual_records: List[Dict[str, Any]] = []
-        timings = {"text_pages": 0, "visual_pages": 0, "text_time": 0.0, "visual_time": 0.0, "classifier_time": 0.0}
+        timings = {
+            "text_pages": 0,
+            "visual_pages": 0,
+            "text_time": 0.0,
+            "visual_time": 0.0,
+            "classifier_time": 0.0
+        }
+
+        routed_text_count = 0
+        routed_vis_count = 0
 
         for page_num in range(len(doc)):
             page = doc.load_page(page_num)
+            p_display = page_num + 1
 
-            # --- Measure Classifier Latency ---
+            # 1. Run classifier to detect page_type
             tc0 = time.time()
-            modality, meta = self.classifier.classify_page_optimized(page)
+            page_type, meta = self.classifier.classify_page_optimized(page)
             timings["classifier_time"] += (time.time() - tc0)
 
-            p_display = page_num + 1
-            
-            print(f"\n[Page {p_display}/{len(doc)}] Decision: --> {modality.upper()} <--")
-            print(f"   L_ Heuristics: chars={meta.get('char_count')}, "
-                  f"cols={meta.get('columns', 1)}, tables={meta.get('has_table', False)}, "
-                  f"large_img={meta.get('has_large_image', False)}")
-
-            if modality == "text-dense":
-                t0 = time.time()
-                page_text = page.get_text("text")
-                records = self.text_node.process_page(
-                    text=page_text, 
-                    doc_id=doc_id, 
-                    page_num=p_display,
-                    metadata=meta
-                )
-                elapsed = time.time() - t0
-                text_records.extend(records)
-                timings["text_time"] += elapsed
-                timings["text_pages"] += 1
-
-                # Inspect Text Bi-Encoder vector dimensionality
-                vec_dim = len(records[0]["vector"]) if records else 0
-                print(f"   ✓ [Text Ingestion]   Latency: {elapsed:.2f}s | "
-                      f"Chunks Created: {len(records)} | Vector Dim: [{len(records)}, {vec_dim}] (1D dense)")
+            if page_type == "text-dense":
+                routed_text_count += 1
             else:
-                t0 = time.time()
-                records = self.visual_node.embed_page(
-                    page=page, 
-                    doc_id=doc_id, 
-                    page_num=p_display
-                )
-                visual_records.append(records)
+                routed_vis_count += 1
 
-                elapsed = (time.time() - t0)
-                timings["visual_time"] += elapsed
-                timings["visual_pages"] += 1
+            # 2. Text branch (runs on all pages for ablation rows A & B)
+            t_text_0 = time.time()
+            page_text = page.get_text("text")
+            t_recs = self.text_node.process_page(
+                text=page_text,
+                doc_id=doc_id,
+                page_num=p_display,
+                page_type=page_type,
+                metadata=meta
+            )
+            elapsed_txt = (time.time() - t_text_0)
+            timings["text_time"] += (time.time() - t_text_0)
+            timings["text_pages"] += 1
+            text_records.extend(t_recs)
 
-                # Inspect ColModernVBERT multi-vector tensor shape
-                emb_shape = tuple(records["multivector"].shape)
-                print(f"   ✓ [Visual Ingestion] Latency: {elapsed:.2f}s | "
-                      f"Output Tensor Shape: {emb_shape} (ColModernVBERT patch multivectors)")
-        
-        # Upsert directly to Qdrant if a storage node is configured
-        if self.storage_node:
-            if text_records:
-                print(f"   -> Upserting {len(text_records)} text chunks to Qdrant...")
-                self.storage_node.upsert_text_records(text_records)
-            if visual_records:
-                print(f"   -> Upserting {len(visual_records)} visual pages to Qdrant...")
-                self.storage_node.upsert_visual_records(visual_records)
+            # 3. Visual branch (runs on all pages for ablation rows C & D)
+            t_vis_0 = time.time()
+            v_rec = self.visual_node.embed_page(
+                page=page,
+                doc_id=doc_id,
+                page_num=p_display,
+                page_type=page_type
+            )
+            elapsed_vis = (time.time() - t_vis_0)
+            timings["visual_time"] += (time.time() - t_vis_0)
+            timings["visual_pages"] += 1
+            visual_records.append(v_rec)
 
-        visual_pages = timings["visual_pages"]
+            print(f"   [P.{p_display}/{len(doc)}] Router: {page_type:<12} | "
+                  f"Text: {len(t_recs)} chunks | Visual: {v_rec['n_vectors']} tokens"
+                  f"text_latency : {elapsed_txt:.2f}s | Vis_latency : {elapsed_vis:.2f}s")
+
+        # 4. Save vectors to Kaggle output directory
+        if self.exporter:
+            print(f"   -> Flushing {doc_id} embeddings to disk (FP16)...")
+            self.exporter.export_text_records(doc_id, text_records)
+            self.exporter.export_visual_records(doc_id, visual_records)
+
         total_p = max(len(doc), 1)
-        visual_percentage = round((visual_pages / total_p) * 100, 2)
-
         return {
             "doc_id": doc_id,
             "total_pages": len(doc),
-            "text_records": text_records,
-            "visual_records": visual_records,
+            "text_chunks": len(text_records),
+            "routed_text_pages": routed_text_count,
+            "routed_visual_pages": routed_vis_count,
             "metrics": timings,
-            "visual_pct": visual_percentage            
+            "visual_pct": round((routed_vis_count / total_p) * 100, 2)
         }
