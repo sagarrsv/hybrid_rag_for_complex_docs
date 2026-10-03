@@ -1,7 +1,6 @@
 import os
 from typing import List, Dict, Any
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from sentence_transformers import SentenceTransformer
 import torch
 
