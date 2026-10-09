@@ -11,7 +11,7 @@ import argparse
 from retriever import MultimodalRetriever
 from generator import MultimodalGenerator
 from graph import build_rag_graph
-from eval_harness import run_evaluation
+from evaluation.eval_harness import run_evaluation
 from config import MAX_K, GOLDEN_PATH, RESULTS_DIR
 
 
