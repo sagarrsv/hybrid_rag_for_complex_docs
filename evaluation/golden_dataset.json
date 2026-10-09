@@ -1,0 +1,1006 @@
+[
+  {
+    "qid": "T-001",
+    "question": "On the WebQuestions (WQ) benchmark, how does the token-level marginalization model compare to the sequence-level marginalization model in terms of exact match score?",
+    "answer": "The token-level marginalization model reaches a 45.5 exact match score on WebQuestions, outperforming the sequence-level variant by 0.3 points.",
+    "gold_pages": [
+      {
+        "doc_id": "2005.11401_RetrievalAugmented_Generation_for_Knowledge",
+        "page_num": 6
+      }
+    ],
+    "evidence_type": "table",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "easy",
+    "reasoning_type": "table_pair_comparison"
+  },
+  {
+    "qid": "T-002",
+    "question": "Among the four detection frameworks where a ResNet-50 backbone was swapped for Swin-T, which one gained the most box AP, and what did that gain cost in inference speed?",
+    "answer": "Cascade Mask R-CNN gained the mst: box AP rose from 46.3 to 50.5 (+4.2), while FPS dropped from 18.0 to 15.3.",
+    "gold_pages": [
+      {
+        "doc_id": "2103.14030_Swin_Transformer_Hierarchical_Vision_Transfo",
+        "page_num": 7
+      }
+    ],
+    "evidence_type": "table",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "medium",
+    "reasoning_type": "table_multi_row_max_with_second_column"
+  },
+  {
+    "qid": "T-003",
+    "question": "Does prefix-layer tuning or low-rank adaptation achieve a higher BLEU score when adapting a GPT-2 medium model?",
+    "answer": "Low-rank adaptation achieves a higher BLEU score than prefix-layer tuning, scoring 70.4 compared to 69.7.",
+    "gold_pages": [
+      {
+        "doc_id": "2106.09685_LoRA_LowRank_Adaptation_of_Large_Language_M",
+        "page_num": 7
+      }
+    ],
+    "evidence_type": "table",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "easy",
+    "reasoning_type": "table_pair_comparison"
+  },
+  {
+    "qid": "T-004",
+    "question": "Does CIDEr keep improving as LoRA rank increases for GPT-2 medium on E2E?",
+    "answer": "No. For GPT-2 medium on E2E, CIDEr rises from about 2.43 at rank 1 to about 2.53 at rank 4, then fluctuates between roughly 2.50 and 2.53 at larger ranks without improving.",
+    "gold_pages": [
+      {
+        "doc_id": "2106.09685_LoRA_LowRank_Adaptation_of_Large_Language_M",
+        "page_num": 26
+      }
+    ],
+    "evidence_type": "table",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "medium",
+    "reasoning_type": "table_column_trend"
+  },
+  {
+    "qid": "T-005",
+    "question": "At 50k training examples, does Chip2 or FLAN v2 give higher MMLU accuracy for 1 epoch?",
+    "answer": "Tuning on the FLAN v2 dataset yields a higher MMLU accuracy of 43.00 compared to 34.50 for the Chip2 dataset when both use 50k examples.",
+    "gold_pages": [
+      {
+        "doc_id": "2305.14314_QLoRA_Efficient_Finetuning_of_Quantized_LLMs",
+        "page_num": 24
+      }
+    ],
+    "evidence_type": "table",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "easy",
+    "reasoning_type": "table_pair_comparison"
+  },
+  {
+    "qid": "T-006",
+    "question": "On the CrowS-Pairs bias benchmark, does fine-tuning a 65B LLaMA into Guanaco raise or lower gender bias?",
+    "answer": "Lower. On CrowS-Pairs, the base LLaMA-65B scores 70.6 for gender bias, while Guanaco-65B scores 47.5.",
+    "gold_pages": [
+      {
+        "doc_id": "2305.14314_QLoRA_Efficient_Finetuning_of_Quantized_LLMs",
+        "page_num": 15
+      }
+    ],
+    "evidence_type": "table",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "easy",
+    "reasoning_type": "table_pair_comparison"
+  },
+  {
+    "qid": "T-007",
+    "question": "Which base-sized model without ImageNet-22K pretraining performs better for object detection with Cascade Mask R-CNN: ConvNeXt or Swin?",
+    "answer": "ConvNeXt-B performs better, achieving a box average precision of 52.7 compared to 51.9 for Swin-B, without ImageNet-22K pretraining.",
+    "gold_pages": [
+      {
+        "doc_id": "2201.03545_A_ConvNet_for_the_2020s",
+        "page_num": 8
+      }
+    ],
+    "evidence_type": "table",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "medium",
+    "reasoning_type": "table_variant_disambiguation"
+  },
+  {
+    "qid": "T-008",
+    "question": "For the OPT-6.7B model, how does average accuracy compare when using per-token versus per-tensor INT8 activation quantization?",
+    "answer": "Per-token activation quantization gives higher average accuracy than per-tensor for OPT-6.7B: 42.5% versus 39.9%.",
+    "gold_pages": [
+      {
+        "doc_id": "2211.10438_SmoothQuant_Accurate_and_Efficient_PostTrai",
+        "page_num": 3
+      }
+    ],
+    "evidence_type": "table",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "easy",
+    "reasoning_type": "table_pair_comparison"
+  },
+  {
+    "qid": "T-009",
+    "question": "In the OPT-175B evaluations, how does the Outlier Suppression method compare to the naive W8A8 baseline on the PIQA dataset?",
+    "answer": "Outlier Suppression underperforms the naive W8A8 baseline on this dataset, scoring 52.5 percent versus 53.4 percent.",
+    "gold_pages": [
+      {
+        "doc_id": "2211.10438_SmoothQuant_Accurate_and_Efficient_PostTrai",
+        "page_num": 6
+      }
+    ],
+    "evidence_type": "table",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "easy",
+    "reasoning_type": "table_pair_comparison"
+  },
+  {
+    "qid": "T-010",
+    "question": "Which 4-bit quantization method yields a lower WikiText2 perplexity for the OPT-13B model?",
+    "answer": "GPTQ achieves a lower WikiText2 perplexity of 10.31 compared to 11.32 for RTN on the 4-bit OPT-13B model.",
+    "gold_pages": [
+      {
+        "doc_id": "2210.17323_GPTQ_Accurate_PostTraining_Quantization_for",
+        "page_num": 7
+      }
+    ],
+    "evidence_type": "table",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "easy",
+    "reasoning_type": "table_pair_comparison"
+  },
+  {
+    "qid": "T-011",
+    "question": "How does model size affect Gemma 1.1 IT's score on the BBQ ambiguous-context evaluation?",
+    "answer": "The 7B scores higher than the 2B, 86.06 versus 58.97 on BBQ Ambig (1-shot).",
+    "gold_pages": [
+      {
+        "doc_id": "2403.08295_Gemma_Open_Models_Based_on_Gemini_Research_a",
+        "page_num": 8
+      }
+    ],
+    "evidence_type": "table",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "easy",
+    "reasoning_type": "table_pair_comparison"
+  },
+  {
+    "qid": "T-012",
+    "question": "Which contrastive vision-language model evaluated in ColPali achieves a higher average nDCG@5 on ViDoRe, Jina-CLIP or Nomic-vision?",
+    "answer": "Jina-CLIP achieves a higher average nDCG@5 of 17.7 compared to Nomic-vision's 12.9 on the ViDoRe benchmark.",
+    "gold_pages": [
+      {
+        "doc_id": "2407.01449_ColPali_Efficient_Document_Retrieval_with_Vi",
+        "page_num": 7
+      }
+    ],
+    "evidence_type": "table",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "easy",
+    "reasoning_type": "table_pair_comparison"
+  },
+  {
+    "qid": "T-013",
+    "question": "For the ColPali ablations, how does the nDCG@5 performance of ColIdefics2 (64) compare to ColQwen2 (768) on the Shift subset?",
+    "answer": "ColQwen2 (768) achieves an nDCG@5 of 85.7 on the Shift subset, outperforming the 57.2 scored by ColIdefics2 (64).",
+    "gold_pages": [
+      {
+        "doc_id": "2407.01449_ColPali_Efficient_Document_Retrieval_with_Vi",
+        "page_num": 21
+      }
+    ],
+    "evidence_type": "table",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "easy",
+    "reasoning_type": "table_pair_comparison"
+  },
+  {
+    "qid": "T-014",
+    "question": "In Corrective Retrieval Augmented Generation, how does the PopQA accuracy change for LLaMA2-hf-7b when search query rewriting is ablated?",
+    "answer": "When search query rewriting is ablated, the PopQA accuracy for LLaMA2-hf-7b drops from 54.9 to 51.7.",
+    "gold_pages": [
+      {
+        "doc_id": "2401.15884_Corrective_Retrieval_Augmented_Generation",
+        "page_num": 8
+      }
+    ],
+    "evidence_type": "table",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "medium",
+    "reasoning_type": "table_ablation_delta"
+  },
+  {
+    "qid": "T-015",
+    "question": "Which approach in Corrective Retrieval Augmented Generation yields a higher FactScore on the Biography task with LLaMA2-hf-7b?",
+    "answer": "Self-CRAG achieves the highest score at 69.1 on the Biography task when using LLaMA2-hf-7b.",
+    "gold_pages": [
+      {
+        "doc_id": "2401.15884_Corrective_Retrieval_Augmented_Generation",
+        "page_num": 7
+      }
+    ],
+    "evidence_type": "table",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "medium",
+    "reasoning_type": "table_column_max"
+  },
+  {
+    "qid": "T-016",
+    "question": "At 3-bit with group size 128, on which OPT size does naive rounding degrade the most, and how far does the scaling-based method bring it back?",
+    "answer": "Naive rounding degrades most on OPT-2.7B, at 298.00 perplexity, and AWQ brings it down to 13.58.",
+    "gold_pages": [
+      {
+        "doc_id": "2306.00978_AWQ_Activationaware_Weight_Quantization_for",
+        "page_num": 4
+      }
+    ],
+    "evidence_type": "table",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "hard",
+    "reasoning_type": "extremum_then_hop"
+  },
+  {
+    "qid": "T-017",
+    "question": "Among the approximate attention baselines on Long-Range Arena, which one tops the Retrieval task yet still averages below FlashAttention?",
+    "answer": "Performer: it has the highest Retrieval score of 82.2 of any model but a lower average of 58.9 than FlashAttention (59.8), at a 1.8x speedup.",
+    "gold_pages": [
+      {
+        "doc_id": "2205.14135_FlashAttention_Fast_and_MemoryEfficient_Exa",
+        "page_num": 8
+      }
+    ],
+    "evidence_type": "table",
+    "difficulty": "hard",
+    "reasoning_type": "table row scanning with threshold filtering across non-adjacent columns",
+    "multi_page": false,
+    "answerable": true
+  },
+  {
+    "qid": "T-018",
+    "question": "How many layers does the only Switch variant without the GEGLU feed-forward variant have?",
+    "answer": "Switch-C, the only Switch model with no GEGLU check mark in the design table, has 15 layers.",
+    "gold_pages": [
+      {
+        "doc_id": "2101.03961_Switch_Transformers_Scaling_to_Trillion_Para",
+        "page_num": 23
+      }
+    ],
+    "evidence_type": "table",
+    "difficulty": "hard",
+    "reasoning_type": "blank_cell_marker_cross_subtable_hop",
+    "multi_page": false,
+    "answerable": true
+  },
+  {
+    "qid": "T-019",
+    "question": "Among the baselines reported from prior work on the multimodal science benchmark, which is the only one scoring higher on social science than natural science, and what is its grades 7-12 accuracy?",
+    "answer": "LLaMA-Adapter is the only prior-work baseline with higher social science (88.30) than natural science (84.37) accuracy, and its grades 7-12 accuracy is 84.05%.",
+    "gold_pages": [
+      {
+        "doc_id": "2304.08485_Visual_Instruction_Tuning",
+        "page_num": 9
+      }
+    ],
+    "evidence_type": "table",
+    "difficulty": "hard",
+    "reasoning_type": "condition_to_row_cross_group_hop",
+    "multi_page": false,
+    "answerable": true
+  },
+  {
+    "qid": "F-001",
+    "question": "Which kind of memory waste takes up a larger share of the cache under Orca (Oracle) than under Orca (Pow2)?",
+    "answer": "The oracle system holds a larger percentage of its cache as reserved memory for future tokens compared to the power-of-two baseline.",
+    "gold_pages": [
+      {
+        "doc_id": "2309.06180_Efficient_Memory_Management_for_Large_Languag",
+        "page_num": 2
+      }
+    ],
+    "evidence_type": "figure",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "medium",
+    "reasoning_type": "figure_category_comparison"
+  },
+  {
+    "qid": "F-002",
+    "question": "Which MT-bench evaluation category achieves a higher inference speedup when using multiple decoding heads: mathematics or humanities?",
+    "answer": "For the Vicuna-7B model, mathematics reaches an approximate 3.01x inference speedup, outperforming the humanities domain at 2.58x.",
+    "gold_pages": [
+      {
+        "doc_id": "2401.10774_Medusa_Simple_LLM_Inference_Acceleration_Fra",
+        "page_num": 7
+      }
+    ],
+    "evidence_type": "figure",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "medium",
+    "reasoning_type": "figure_bar_comparison"
+  },
+  {
+    "qid": "F-003",
+    "question": "Does an optimised sparse tree of candidate tokens yield a higher acceleration rate than a randomly sampled dense tree?",
+    "answer": "Yes, an optimised sparse layout containing 64 nodes delivers a greater acceleration rate compared to a random dense arrangement of 256 nodes.",
+    "gold_pages": [
+      {
+        "doc_id": "2401.10774_Medusa_Simple_LLM_Inference_Acceleration_Fra",
+        "page_num": 8
+      }
+    ],
+    "evidence_type": "figure",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "medium",
+    "reasoning_type": "figure_curve_comparison"
+  },
+  {
+    "qid": "F-004",
+    "question": "What happens to the final evaluation loss when the cosine cycle length is set to five times the actual number of training steps?",
+    "answer": "Setting the cosine schedule to five times the actual training duration prevents proper convergence, resulting in a higher final validation loss.",
+    "gold_pages": [
+      {
+        "doc_id": "2203.15556_Training_ComputeOptimal_Large_Language_Model",
+        "page_num": 23
+      }
+    ],
+    "evidence_type": "figure",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "medium",
+    "reasoning_type": "figure_curve_trend"
+  },
+  {
+    "qid": "F-005",
+    "question": "Where do we see the smallest bits-per-byte performance gain for the compute-optimal model across The Pile evaluation subsets?",
+    "answer": "The smallest performance gain for the compute-optimal architecture across The Pile evaluation occurs on the pubmed_abstracts dataset split.",
+    "gold_pages": [
+      {
+        "doc_id": "2203.15556_Training_ComputeOptimal_Large_Language_Model",
+        "page_num": 10
+      }
+    ],
+    "evidence_type": "figure",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "medium",
+    "reasoning_type": "figure_bar_extremum"
+  },
+  {
+    "qid": "F-006",
+    "question": "In speculative decoding, how does the optimal number of guessed tokens γ change as the cost coefficient c of the draft model increases?",
+    "answer": "A higher cost coefficient c gives a smaller optimal γ at every acceptance rate α from 0.5 to 0.9. For example, at α = 0.9 the optimal γ falls from about 24 at c = 0.01 to about 10 at c = 0.1.",
+    "gold_pages": [
+      {
+        "doc_id": "2211.17192_Fast_Inference_from_Transformers_via_Speculat",
+        "page_num": 5
+      }
+    ],
+    "evidence_type": "figure",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "medium",
+    "reasoning_type": "figure_multi_curve_trend"
+  },
+  {
+    "qid": "F-007",
+    "question": "In a trace diagram for an encoder-decoder Transformer, how does total wall time change when the number of guessed tokens γ goes from 3 to 7, compared with standard decoding?",
+    "answer": "Wall time shrinks as γ rises: γ = 7 finishes first, γ = 3 next, and standard decoding takes longest. The larger γ also needs fewer large-model decoder calls (about 4 versus 7 for γ = 3).",
+    "gold_pages": [
+      {
+        "doc_id": "2211.17192_Fast_Inference_from_Transformers_via_Speculat",
+        "page_num": 6
+      }
+    ],
+    "evidence_type": "figure",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "medium",
+    "reasoning_type": "figure_diagram_ordering"
+  },
+  {
+    "qid": "F-008",
+    "question": "On easier MATH questions (difficulty level 2), does majority-vote accuracy keep rising as the test-time compute budget grows from 4 to 256 generations?",
+    "answer": "Yes. On difficulty level 2, majority-vote accuracy increases at every budget, from roughly 14% at 4 generations to roughly 47% at 256 generations, whereas beam search does not keep improving.",
+    "gold_pages": [
+      {
+        "doc_id": "2408.03314_Scaling_LLM_TestTime_Compute_Optimally_can_b",
+        "page_num": 9
+      }
+    ],
+    "evidence_type": "figure",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "medium",
+    "reasoning_type": "figure_bar_trend_by_bin"
+  },
+  {
+    "qid": "F-009",
+    "question": "With 64 generations on MATH, does verifier-weighted best-of-N over parallel samples beat majority voting over sequential revisions?",
+    "answer": "Yes. At 64 generations, parallel best-of-N weighted reaches about 39.5% accuracy, above sequential majority voting at about 37.7%.",
+    "gold_pages": [
+      {
+        "doc_id": "2408.03314_Scaling_LLM_TestTime_Compute_Optimally_can_b",
+        "page_num": 12
+      }
+    ],
+    "evidence_type": "figure",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "medium",
+    "reasoning_type": "figure_cross_curve_comparison"
+  },
+  {
+    "qid": "F-010",
+    "question": "In the 5-layer ColBERT ablations, which design degrades MRR@10 more: removing query augmentation or using average similarity?",
+    "answer": "Using average similarity degrades MRR@10 more than removing query augmentation in the 5-layer ColBERT architecture.",
+    "gold_pages": [
+      {
+        "doc_id": "2004.12832_ColBERT_Efficient_and_Effective_Passage_Sear",
+        "page_num": 9
+      }
+    ],
+    "evidence_type": "figure",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "medium",
+    "reasoning_type": "figure_ablation_ordering"
+  },
+  {
+    "qid": "F-011",
+    "question": "In few-shot ImageNet evaluation as JFT pre-training grows, which ViT variant never overtakes the smaller BiT ResNet?",
+    "answer": "The width-halved ViT-b/32. At 300M pre-training samples it reaches only about 40-41% 5-shot accuracy, below ResNet50x1 (BiT) at about 52%, while ViT-B/32, ViT-L/32 and ViT-L/16 all overtake it.",
+    "gold_pages": [
+      {
+        "doc_id": "2010.11929_An_Image_is_Worth_16x16_Words_Transformers_f",
+        "page_num": 7
+      }
+    ],
+    "evidence_type": "figure",
+    "difficulty": "hard",
+    "reasoning_type": "multi_curve_elimination_against_reference_line",
+    "multi_page": false,
+    "answerable": true
+  },
+  {
+    "qid": "F-012",
+    "question": "Why do the final validation errors in the ImageNet training curves sit several points above the reported top-1 errors for the same plain and residual networks?",
+    "answer": "The training curves plot validation error on center crops, while the top-1 error table uses 10-crop testing, which gives lower error. For example, the 34-layer residual net ends near 28% on the curve but is reported at 25.03%.",
+    "gold_pages": [
+      {
+        "doc_id": "1512.03385_Deep_Residual_Learning_for_Image_Recognition",
+        "page_num": 5
+      }
+    ],
+    "evidence_type": "figure",
+    "difficulty": "hard",
+    "reasoning_type": "cross_element_reconciliation_figure_vs_table",
+    "multi_page": false,
+    "answerable": true
+  },
+  {
+    "qid": "F-013",
+    "question": "How many keyword-counting samples are solved correctly by the sentence-level graph-based variant?",
+    "answer": "The sentence-level GoTx variant solves 25 keyword-counting samples (GoT4 and GoT8, which split by passages, solve 8 and 7).",
+    "gold_pages": [
+      {
+        "doc_id": "2308.09687_Graph_of_Thoughts_Solving_Elaborate_Problems",
+        "page_num": 9
+      }
+    ],
+    "evidence_type": "figure",
+    "difficulty": "hard",
+    "reasoning_type": "callout_to_bar_mapping_then_count_row_lookup",
+    "multi_page": false,
+    "answerable": true
+  },
+  {
+    "qid": "F-014",
+    "question": "In the parallelization scheme for attention, which worker handles the fewest blocks in the forward pass but the most in the backward pass?",
+    "answer": "Worker 1: it covers 1 block in the forward pass (the triangular shading grows by one block per worker) and all 5 blocks of its column in the backward pass.",
+    "gold_pages": [
+      {
+        "doc_id": "2307.08691_FlashAttention2_Faster_Attention_with_Bette",
+        "page_num": 8
+      }
+    ],
+    "evidence_type": "figure",
+    "difficulty": "hard",
+    "reasoning_type": "cross_panel_load_inversion",
+    "multi_page": false,
+    "answerable": true
+  },
+  {
+    "qid": "F-015",
+    "question": "On which benchmarks does the model pretrained on ImageNet-22k get worse when scaled from ViT-L to ViT-H, while the curated-data model keeps improving?",
+    "answer": "Cars, AmsterTime and Oxford-H. The ImageNet-22k curve dips at ViT-H on all three, while the LVD142M curve rises at every model size.",
+    "gold_pages": [
+      {
+        "doc_id": "2304.07193_DINOv2_Learning_Robust_Visual_Features_witho",
+        "page_num": 9
+      }
+    ],
+    "evidence_type": "figure",
+    "difficulty": "hard",
+    "reasoning_type": "multi_panel_non_monotonic_scan",
+    "multi_page": false,
+    "answerable": true
+  },
+  {
+    "qid": "X-001",
+    "question": "When shifted window partitioning produces more windows of unequal size, how is the computation kept efficient and batchable?",
+    "answer": "The feature map is cyclically shifted toward the top-left so windows can be batched at the original window count. A mask then restricts self-attention to within each sub-window, and the shift is reversed afterward.",
+    "gold_pages": [
+      {
+        "doc_id": "2103.14030_Swin_Transformer_Hierarchical_Vision_Transfo",
+        "page_num": 5
+      }
+    ],
+    "evidence_type": "text",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "medium",
+    "reasoning_type": "multi_step_mechanism"
+  },
+  {
+    "qid": "X-002",
+    "question": "Why is the relative position bias in windowed self-attention stored in a (2M−1)×(2M−1) matrix rather than an M²×M² one?",
+    "answer": "Relative positions along each axis fall in the range [−M+1, M−1]. The M²×M² bias values can therefore be taken from a smaller parameterized matrix of size (2M−1)×(2M−1).",
+    "gold_pages": [
+      {
+        "doc_id": "2103.14030_Swin_Transformer_Hierarchical_Vision_Transfo",
+        "page_num": 4
+      }
+    ],
+    "evidence_type": "text",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "medium",
+    "reasoning_type": "equation_interpretation"
+  },
+  {
+    "qid": "X-003",
+    "question": "Does using more constitutional principles make the revised responses score better with the harmlessness preference model?",
+    "answer": "Increasing the number of constitutional principles does not improve the harmlessness preference model scores, but it improves the diversity of revised responses.",
+    "gold_pages": [
+      {
+        "doc_id": "2212.08073_Constitutional_AI_Harmlessness_from_AI_Feedb",
+        "page_num": 9
+      }
+    ],
+    "evidence_type": "text",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "easy",
+    "reasoning_type": "finding_lookup"
+  },
+  {
+    "qid": "X-004",
+    "question": "In the critique-and-revision stage, how is the guiding principle chosen at each step, and how many revisions are applied to a response?",
+    "answer": "A principle is randomly sampled from the constitution at each critique-revision step, and the revision is applied sequentially several times, up to four revisions per response.",
+    "gold_pages": [
+      {
+        "doc_id": "2212.08073_Constitutional_AI_Harmlessness_from_AI_Feedb",
+        "page_num": 5
+      }
+    ],
+    "evidence_type": "text",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "medium",
+    "reasoning_type": "two_part_design_detail"
+  },
+  {
+    "qid": "X-005",
+    "question": "How does preference model calibration change when harmlessness data is mixed into the helpfulness training set?",
+    "answer": "Preference models trained on a mixture of helpful and harmless data become slightly under-confident compared to the well-calibrated models trained only on helpfulness data.",
+    "gold_pages": [
+      {
+        "doc_id": "2204.05862_Training_a_Helpful_and_Harmless_Assistant_wit",
+        "page_num": 14
+      }
+    ],
+    "evidence_type": "text",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "easy",
+    "reasoning_type": "finding_lookup"
+  },
+  {
+    "qid": "X-006",
+    "question": "Under DPO's Bradley-Terry model, what does the preference probability depend on once the reward is rewritten in terms of the policy?",
+    "answer": "It depends on the difference between the β-scaled log-ratios (policy versus reference policy) of the two responses.",
+    "gold_pages": [
+      {
+        "doc_id": "2305.18290_Direct_Preference_Optimization_Your_Language",
+        "page_num": 4
+      }
+    ],
+    "evidence_type": "text",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "medium",
+    "reasoning_type": "equation_interpretation"
+  },
+  {
+    "qid": "X-007",
+    "question": "In DPO, how should the reference policy be initialized when no supervised fine-tuned model is available?",
+    "answer": "When no SFT model is available, DPO initializes the reference policy by maximizing the likelihood of the preferred completions (x, y_w).",
+    "gold_pages": [
+      {
+        "doc_id": "2305.18290_Direct_Preference_Optimization_Your_Language",
+        "page_num": 5
+      }
+    ],
+    "evidence_type": "text",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "easy",
+    "reasoning_type": "design_detail"
+  },
+  {
+    "qid": "X-008",
+    "question": "Why does Kahneman-Tversky Optimization typically require a higher optimal learning rate than Direct Preference Optimization?",
+    "answer": "Kahneman-Tversky Optimization requires a more aggressive learning rate because the reference-adjusted reward it relies on tends to be much smaller in magnitude.",
+    "gold_pages": [
+      {
+        "doc_id": "2402.01306_KTO_Model_Alignment_as_Prospect_Theoretic_Op",
+        "page_num": 7
+      }
+    ],
+    "evidence_type": "text",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "easy",
+    "reasoning_type": "why_design_choice"
+  },
+  {
+    "qid": "X-009",
+    "question": "In the KL estimate for the reference point, how are negative average log probability ratios handled?",
+    "answer": "The estimator uses a maximum operation to clamp any negative average log probability ratios to zero.",
+    "gold_pages": [
+      {
+        "doc_id": "2402.01306_KTO_Model_Alignment_as_Prospect_Theoretic_Op",
+        "page_num": 6
+      }
+    ],
+    "evidence_type": "text",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "medium",
+    "reasoning_type": "equation_interpretation"
+  },
+  {
+    "qid": "X-010",
+    "question": "Why does sampling rationales at a higher temperature work worse than rationalization (hinting the correct answer) for bootstrapping a reasoning dataset?",
+    "answer": "Elevated temperatures often produce correct final answers based on flawed or irrelevant reasoning, which ultimately prevents the model from generalizing.",
+    "gold_pages": [
+      {
+        "doc_id": "2203.14465_STaR_Bootstrapping_Reasoning_With_Reasoning",
+        "page_num": 9
+      }
+    ],
+    "evidence_type": "text",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "easy",
+    "reasoning_type": "why_design_choice"
+  },
+  {
+    "qid": "X-011",
+    "question": "When comparing generated rationales to ground truth on GSM8K, what happens when the two disagree on the number of calculation steps?",
+    "answer": "The model generally produces shorter solutions than humans, either by skipping intermediate steps or by discovering an alternative path to the answer.",
+    "gold_pages": [
+      {
+        "doc_id": "2203.14465_STaR_Bootstrapping_Reasoning_With_Reasoning",
+        "page_num": 8
+      }
+    ],
+    "evidence_type": "text",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "easy",
+    "reasoning_type": "finding_lookup"
+  },
+  {
+    "qid": "X-012",
+    "question": "Which string's embedding is used to initialize the start-of-thought and end-of-thought token embeddings?",
+    "answer": "The start and end meta-tokens are initialized using the embedding that corresponds to the em dash string.",
+    "gold_pages": [
+      {
+        "doc_id": "2403.09629_QuietSTaR_Language_Models_Can_Teach_Themsel",
+        "page_num": 6
+      }
+    ],
+    "evidence_type": "text",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "easy",
+    "reasoning_type": "design_detail"
+  },
+  {
+    "qid": "X-013",
+    "question": "What neural architecture forms the mixing head used to interpolate between predictions with and without thoughts?",
+    "answer": "The mixing head is constructed as a three-layer multi-layer perceptron equipped with a ReLU activation function.",
+    "gold_pages": [
+      {
+        "doc_id": "2403.09629_QuietSTaR_Language_Models_Can_Teach_Themsel",
+        "page_num": 16
+      },
+      {
+        "doc_id": "2403.09629_QuietSTaR_Language_Models_Can_Teach_Themsel",
+        "page_num": 5
+      }
+    ],
+    "evidence_type": "text",
+    "multi_page": true,
+    "answerable": true,
+    "difficulty": "medium",
+    "reasoning_type": "multi_page_design_detail"
+  },
+  {
+    "qid": "X-014",
+    "question": "In the confidence-based active retrieval formulation, what condition allows the temporary next sentence to be accepted without retrieving additional documents?",
+    "answer": "The temporary next sentence is accepted without retrieval if all of its tokens have probabilities greater than or equal to the specified confidence threshold.",
+    "gold_pages": [
+      {
+        "doc_id": "2305.06983_Active_Retrieval_Augmented_Generation",
+        "page_num": 4
+      }
+    ],
+    "evidence_type": "text",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "easy",
+    "reasoning_type": "equation_interpretation"
+  },
+  {
+    "qid": "X-015",
+    "question": "When forming explicit queries for active retrieval, how are the low-confidence spans turned into search queries?",
+    "answer": "The system extracts these low-confidence spans and prompts gpt-3.5-turbo to generate a specific question that can be answered by each span.",
+    "gold_pages": [
+      {
+        "doc_id": "2305.06983_Active_Retrieval_Augmented_Generation",
+        "page_num": 5
+      }
+    ],
+    "evidence_type": "text",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "easy",
+    "reasoning_type": "design_detail"
+  },
+  {
+    "qid": "X-016",
+    "question": "Why does the Mamba-2 block project the state space model parameters in parallel at the beginning of the computation?",
+    "answer": "Projecting the parameters in parallel slightly reduces the total parameter count and enables standard tensor parallelism for scaling up larger models.",
+    "gold_pages": [
+      {
+        "doc_id": "2405.21060_Transformers_are_SSMs_Generalized_Models_and",
+        "page_num": 23
+      }
+    ],
+    "evidence_type": "text",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "easy",
+    "reasoning_type": "why_design_choice"
+  },
+  {
+    "qid": "X-017",
+    "question": "How can state space models process variable length sequences efficiently without relying on padding tokens?",
+    "answer": "The model treats the whole batch as one long sequence and avoids passing states between individual sequences by setting the A_t parameter to zero at the end of each sequence.",
+    "gold_pages": [
+      {
+        "doc_id": "2405.21060_Transformers_are_SSMs_Generalized_Models_and",
+        "page_num": 28
+      }
+    ],
+    "evidence_type": "text",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "easy",
+    "reasoning_type": "design_detail"
+  },
+  {
+    "qid": "X-018",
+    "question": "Why does the BLOOM paper include an additional layer normalization after the first embedding layer?",
+    "answer": "An additional layer normalization is included after the first embedding layer to avoid training instabilities.",
+    "gold_pages": [
+      {
+        "doc_id": "2211.05100_BLOOM_A_176BParameter_OpenAccess_Multiling",
+        "page_num": 16
+      }
+    ],
+    "evidence_type": "text",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "easy",
+    "reasoning_type": "why_design_choice"
+  },
+  {
+    "qid": "X-019",
+    "question": "For a 176B multilingual open-access model, how does adding a bias term to the GeLU operation change runtime when the operations are fused into one CUDA kernel?",
+    "answer": "Adding the bias term adds no additional time because the operation is memory-bound, meaning that fusing both operations essentially halves their runtime.",
+    "gold_pages": [
+      {
+        "doc_id": "2211.05100_BLOOM_A_176BParameter_OpenAccess_Multiling",
+        "page_num": 20
+      }
+    ],
+    "evidence_type": "text",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "easy",
+    "reasoning_type": "design_detail"
+  },
+  {
+    "qid": "X-020",
+    "question": "Why is logits soft-capping not applied in the final fine-tuning stage (Stage 3)?",
+    "answer": "Logits soft-capping is omitted during Stage 3 because it resulted in worse performance on some downstream tasks.",
+    "gold_pages": [
+      {
+        "doc_id": "2412.03555_PaliGemma_2_A_Family_of_Versatile_VLMs_for_T",
+        "page_num": 3
+      }
+    ],
+    "evidence_type": "text",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "easy",
+    "reasoning_type": "why_design_choice"
+  },
+  {
+    "qid": "X-021",
+    "question": "Why does Llama 3 block attention across distinct documents packed into the same sequence?",
+    "answer": "While it has little impact during standard pre-training, isolating documents is crucial for the model's continued pre-training on very long context windows.",
+    "gold_pages": [
+      {
+        "doc_id": "2407.21783_The_Llama_3_Herd_of_Models",
+        "page_num": 6
+      }
+    ],
+    "evidence_type": "text",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "easy",
+    "reasoning_type": "why_design_choice"
+  },
+  {
+    "qid": "X-022",
+    "question": "How does Swin Transformer V2 prevent the self-attention module from causing a GPU memory bottleneck when training on very large image resolutions?",
+    "answer": "The model computes self-attention sequentially for the layers in the first two stages instead of using the standard batch computation approach.",
+    "gold_pages": [
+      {
+        "doc_id": "2111.09883_Swin_Transformer_V2_Scaling_Up_Capacity_and_",
+        "page_num": 6
+      }
+    ],
+    "evidence_type": "text",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "easy",
+    "reasoning_type": "design_detail"
+  },
+  {
+    "qid": "X-023",
+    "question": "Why did the authors pick sinusoidal positional encodings over learned positional embeddings?",
+    "answer": "They produced nearly identical results to learned embeddings, and the sinusoidal version may let the model extrapolate to sequence lengths longer than those seen in training, as per the authors' hypothesis.",
+    "gold_pages": [
+      {
+        "doc_id": "1706.03762_Attention_Is_All_You_Need",
+        "page_num": 6
+      }
+    ],
+    "evidence_type": "text",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "easy",
+    "reasoning_type": "why_design_choice"
+  },
+  {
+    "qid": "X-024",
+    "question": "Why does the Segment Anything Model predict exactly three mask outputs for a single prompt?",
+    "answer": "The Segment Anything Model predicts three mask outputs because three layers are typically sufficient to describe nested objects consisting of a whole, part, and subpart.",
+    "gold_pages": [
+      {
+        "doc_id": "2304.02643_Segment_Anything",
+        "page_num": 5
+      }
+    ],
+    "evidence_type": "text",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "easy",
+    "reasoning_type": "why_design_choice"
+  },
+  {
+    "qid": "X-025",
+    "question": "What happens to ranking quality if an instruction-tuned RAG model that was never trained on ranking data is used directly to rank retrieved passages?",
+    "answer": "Ranking performance gets worse, which indicates that ranking data needs to be incorporated into the instruction fine-tuning.",
+    "gold_pages": [
+      {
+        "doc_id": "2407.02485_RankRAG_Unifying_Context_Ranking_with_Retrie",
+        "page_num": 9
+      }
+    ],
+    "evidence_type": "text",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "medium",
+    "reasoning_type": "counterfactual_finding"
+  },
+  {
+    "qid": "X-026",
+    "question": "When bounding the inner product of position-rotated query and key pairs, which two factors does the upper bound split into, and which one carries the dependence on relative distance?",
+    "answer": "The bound is the largest gap between consecutive pairwise query-key products h_i, multiplied by the sum of the absolute partial sums |S_i| of the rotation terms. The sum of |S_i| carries the distance dependence, and its average shrinks as m−n grows when θ_i = 10000^(−2i/d).",
+    "gold_pages": [
+      {
+        "doc_id": "2104.09864_RoFormer_Enhanced_Transformer_with_Rotary_Po",
+        "page_num": 8
+      }
+    ],
+    "evidence_type": "text",
+    "difficulty": "hard",
+    "reasoning_type": "equation based generation",
+    "multi_page": false,
+    "answerable": true
+  },
+  {
+    "qid": "X-027",
+    "question": "Why is the retrieval-decision token excluded from the weighted critique score used to rank generated continuations?",
+    "answer": "The retrieval-decision token [Retrieve] determines whether external passages should be fetched, whereas the weighted critique score evaluates candidate continuations using [IsRel], [IsSup], and [IsUse] to assess passage relevance, response support, and overall usefulness.",
+    "gold_pages": [
+      {
+        "doc_id": "2310.11511_Self_RAG_Learning_to_Retrieve_Generate_and_Critique",
+        "page_num": 5
+      },
+      {
+        "doc_id": "2310.11511_Self_RAG_Learning_to_Retrieve_Generate_and_Critique",
+        "page_num": 4
+      }
+    ],
+    "evidence_type": "text",
+    "difficulty": "hard_candidate",
+    "reasoning_type": "equation_to_algorithm_role_synthesis",
+    "multi_page": true,
+    "answerable": true
+  },
+  {
+    "qid": "X-028",
+    "question": "What image masking ratio is used by the pre-training objective that prevents PubLayNet loss divergence during document layout analysis?",
+    "answer": "The Masked Image Modeling (MIM) objective uses a masking ratio of approximately 40% of image tokens, and its inclusion prevents the training divergence observed when linear image embeddings are pretrained using masked language modeling alone.",
+    "gold_pages": [
+      {
+        "doc_id": "2204.08387_LayoutLMv3_Pretraining_for_Document_AI_with",
+        "page_num": 4
+      },
+      {
+        "doc_id": "2204.08387_LayoutLMv3_Pretraining_for_Document_AI_with",
+        "page_num": 7
+      }
+    ],
+    "evidence_type": "text",
+    "difficulty": "hard",
+    "reasoning_type": "cross_page_ablation_to_hyperparameter",
+    "multi_page": true,
+    "answerable": true
+  }
+]
