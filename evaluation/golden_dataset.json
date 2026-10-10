@@ -969,11 +969,11 @@
     "answer": "The retrieval-decision token [Retrieve] determines whether external passages should be fetched, whereas the weighted critique score evaluates candidate continuations using [IsRel], [IsSup], and [IsUse] to assess passage relevance, response support, and overall usefulness.",
     "gold_pages": [
       {
-        "doc_id": "2310.11511_Self_RAG_Learning_to_Retrieve_Generate_and_Critique",
+        "doc_id": "2310.11511_Self_RAG_Learning_to_Retrieve_Generate_and",
         "page_num": 5
       },
       {
-        "doc_id": "2310.11511_Self_RAG_Learning_to_Retrieve_Generate_and_Critique",
+        "doc_id": "2310.11511_Self_RAG_Learning_to_Retrieve_Generate_and",
         "page_num": 4
       }
     ],
