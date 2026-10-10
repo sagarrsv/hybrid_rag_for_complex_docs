@@ -77,8 +77,20 @@ def compute_metrics_at_k(
 
 
 # ------------------------------------------------------------------
-# Dataset Loading & Validation
+# Dataset Normalization, Loading & Validation
 # ------------------------------------------------------------------
+
+def normalize_gold_page(p: Any) -> Tuple[str, int]:
+    """Coerces both dict format {'doc_id': ..., 'page_num': ...} and tuple/list format to (doc_id, page_num)."""
+    if isinstance(p, dict):
+        if "doc_id" not in p or "page_num" not in p:
+            raise ValueError(f"Malformed gold_page dict missing 'doc_id' or 'page_num': {p}")
+        return str(p["doc_id"]), int(p["page_num"])
+    elif isinstance(p, (list, tuple)) and len(p) == 2:
+        return str(p[0]), int(p[1])
+    else:
+        raise ValueError(f"Unrecognized gold_page item structure: {p}")
+    
 def load_and_validate_dataset(
     golden_path: str,
     retriever: MultimodalRetriever
@@ -104,8 +116,14 @@ def load_and_validate_dataset(
             raise ValueError(f"Duplicate qid detected: {qid}")
         seen_qids.add(qid)
 
-        # Extract doc IDs and filter suspect papers
-        doc_ids = {page[0] for page in rec["gold_pages"]}
+        # ----------------------------------------------------
+        # NORMALIZATION STEP:
+        # Convert List[Dict] -> List[Tuple[str, int]]
+        # ----------------------------------------------------
+        rec["gold_pages"] = [normalize_gold_page(p) for p in rec["gold_pages"]]
+
+        # Check exclusion targets using the normalized pairs
+        doc_ids = {doc_id for doc_id, _ in rec["gold_pages"]}
         if any(d in EXCLUDE_DOCS for d in doc_ids):
             continue
 

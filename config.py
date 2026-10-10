@@ -64,11 +64,11 @@ RESULTS_DIR = "evaluation/results"
 
 # Documents excluded from benchmark calculations (e.g., corrupted inputs or suspect runs)
 EXCLUDE_DOCS: Set[str] = {
-    "2007.07399_Bringing_the_People_Back",
-    "2312.00758_On_absolutely_friendly_m",
-    "2405.01168_Remote_Nucleation_and_St",
-    "2108.06945_Characterization_of_CSym",
-    "2309.07597_CPack_Packed_Resources_F"
+    "2007.07399_Bringing_the_People_Back_In_Contesting_Bench",
+    "2310.12469_Entropy_and_de_Haasvan_Alphen_oscillations_o",
+    "2405.01168_Remote_Nucleation_and_Stationary_Domain_Walls",
+    "2108.06945_Characterization_of_CSymmetric_Toeplitz_oper",
+    "2312.00758_On_absolutely_friendly_measures_on_mathbbQ"
 }
 
 
