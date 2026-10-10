@@ -40,7 +40,7 @@ from retriever import MultimodalRetriever
 def compute_metrics_at_k(
     hits: List[Dict[str, Any]],
     gold_pages: List[Tuple[str, int]],
-    k_vals: List[int]
+    k_vals: List[int]=K_VALUES
 ) -> Tuple[Dict[int, float], Dict[int, float], float]:
     """
     Computes Recall@k, NDCG@k for each k, and overall MRR (at MAX_K).
