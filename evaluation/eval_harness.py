@@ -193,7 +193,7 @@ def run_evaluation(golden_path: str = GOLDEN_PATH, output_dir: str = RESULTS_DIR
                 "recalls": recalls,
                 "ndcgs": ndcgs,
                 "mrr": mrr,
-                "hits": [(h["doc_id"], h["page_num"], h["score"]) for h in hits]
+                "hits": [(h["doc_id"], int(h["page_num"]), float(h["score"])) for h in hits]
             })
 
         if idx % 10 == 0 or idx == len(eval_set):

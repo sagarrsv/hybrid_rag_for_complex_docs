@@ -47,7 +47,8 @@ class MultimodalRetriever:
         self.vis_processor = ColModernVBertProcessor.from_pretrained(VIS_MODEL_NAME)
         self.vis_model = ColModernVBert.from_pretrained(
             VIS_MODEL_NAME,
-            torch_dtype=VIS_QUERY_DTYPE
+            trust_remote_code=True,
+            dtype=VIS_QUERY_DTYPE           
         ).to(DEVICE)
         self.vis_model.eval()
 
