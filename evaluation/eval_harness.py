@@ -181,7 +181,7 @@ def run_evaluation(golden_path: str = GOLDEN_PATH, output_dir: str = RESULTS_DIR
             
             latencies[mode].append(lat)
             retrieved_pages = [(h["doc_id"], int(h["page_num"])) for h in hits]
-            recalls, ndcgs, mrr = compute_metrics_at_k(retrieved_pages, gold_set)
+            recalls, ndcgs, mrr = compute_metrics_at_k(retrieved_pages, gold_pages)
 
             # === MODIFIED / ADDED: 2. Save richer hits format and candidate pools ===
             rich_hits = [
