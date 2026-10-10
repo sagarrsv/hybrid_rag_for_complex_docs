@@ -31,7 +31,7 @@ class ColModernVBertPipeline:
         """
         Renders page to image and extracts ColModernVBERT multi-vector embeddings.
         """
-        pix = page.get_pixmap(dpi=self.dpi)  # sets the render quality...100= 110px long edge
+        pix = page.get_pixmap(dpi=self.dpi)  # sets the render quality...100= 850 x 1100px long edge~1100
         img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
 
         with torch.no_grad():
