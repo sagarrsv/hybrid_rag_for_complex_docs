@@ -180,18 +180,35 @@ def run_evaluation(golden_path: str = GOLDEN_PATH, output_dir: str = RESULTS_DIR
             hits, lat, pools = retriever.search(mode, q, k=SAVE_K, return_pools=True)
             
             latencies[mode].append(lat)
-            retrieved_pages = [(h["doc_id"], int(h["page_num"])) for h in hits]
+            # Extract (doc_id, page_num) pairs for metric evaluation
+            retrieved_pages = [
+                (str(h["doc_id"]), int(h["page_num"]))
+                for h in hits
+                if "doc_id" in h and "page_num" in h
+            ]
+            
             recalls, ndcgs, mrr = compute_metrics_at_k(retrieved_pages, gold_pages)
-
-            # === MODIFIED / ADDED: 2. Save richer hits format and candidate pools ===
+            # Preserve rich hit metadata for offline deep analysis
             rich_hits = [
-                (h["doc_id"], int(h["page_num"]), float(h["score"]), h.get("page_type"), h.get("source"))
+                (
+                    h.get("doc_id"),
+                    int(h.get("page_num")),
+                    float(h.get("score", 0.0)),
+                    h.get("page_type"),
+                    h.get("source"),
+                )
                 for h in hits
             ]
 
+            # Preserve internal candidate pools before fusion
             rich_pools = {
                 name: [
-                    (p["doc_id"], int(p["page_num"]), float(p["score"]), p.get("page_type"))
+                    (
+                        p.get("doc_id"),
+                        int(p.get("page_num")),
+                        float(p.get("score", 0.0)),
+                        p.get("page_type"),
+                    )
                     for p in pool
                 ]
                 for name, pool in (pools or {}).items()
