@@ -54,7 +54,7 @@ GENERATOR_CONTEXT_PAGES = 3
 MAX_K = 10
 K_VALUES = [1, 3, 5, 10]
 CANDIDATE_POOL = 20
-TEXT_OVERFETCH = 4
+TEXT_OVERFETCH = 6
 RRF_K = 60
 
 RETRIEVAL_MODES = ["text", "visual", "hybrid_routed", "fusion_unrouted"]
