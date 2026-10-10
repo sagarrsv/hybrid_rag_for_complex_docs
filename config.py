@@ -60,7 +60,7 @@ RRF_K = 60
 # === MODIFIED / ADDED: Add SAVE_K = 20 for candidate pool logging ===
 SAVE_K = 20
 
-RETRIEVAL_MODES = ["text", "visual", "hybrid_routed", "fusion_unrouted"]
+RETRIEVAL_MODES = ["text", "visual", "hybrid_routed", "fusion_unrouted", "hybrid_v2"]
 
 GOLDEN_PATH = "evaluation/golden_dataset.json"
 RESULTS_DIR = "evaluation/results_v2"

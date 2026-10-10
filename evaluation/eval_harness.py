@@ -2,7 +2,7 @@
 eval_harness.py
 ====================================================================
 Offline Evaluation Harness:
-  - Loads and validates evaluation/golden_set.json
+  - Loads and validates evaluation/golden_dataset.json
   - Excludes suspect papers and filters unanswerable queries
   - Validates gold (doc_id, page_num) existence in Qdrant
   - Computes MRR@10 and Recall@k, NDCG@k across K_VALUES
@@ -11,14 +11,12 @@ Offline Evaluation Harness:
   - Records p50/p95 latency and saves query-level traces with snapshot()
 ====================================================================
 """
-
 import os
 import json
 import math
 import numpy as np
 from typing import List, Dict, Any, Tuple
 from collections import defaultdict
-
 from config import (
     GOLDEN_PATH,
     RESULTS_DIR,
@@ -33,22 +31,26 @@ from config import (
 )
 from retriever import MultimodalRetriever
 
-
 # ------------------------------------------------------------------
 # Metric Utilities
 # ------------------------------------------------------------------
 def compute_metrics_at_k(
     hits: List[Dict[str, Any]],
     gold_pages: List[Tuple[str, int]],
-    k_vals: List[int]=K_VALUES
+    k_vals: List[int] = K_VALUES
 ) -> Tuple[Dict[int, float], Dict[int, float], float]:
     """
     Computes Recall@k, NDCG@k for each k, and overall MRR (at MAX_K).
-    gold_pages is a list of (doc_id, page_num) pairs.
+    Accepts hits as either a list of dicts with 'doc_id'/'page_num' OR a list of (doc_id, page_num) tuples.
     """
-    retrieved_pages = [(h["doc_id"], h["page_num"]) for h in hits]
-    gold_set = set(gold_pages)
+    retrieved_pages = []
+    for h in hits:
+        if isinstance(h, dict):
+            retrieved_pages.append((str(h["doc_id"]), int(h["page_num"])))
+        elif isinstance(h, (list, tuple)):
+            retrieved_pages.append((str(h[0]), int(h[1])))
 
+    gold_set = set((str(doc_id), int(page_num)) for doc_id, page_num in gold_pages)
     recalls = {}
     ndcgs = {}
 
@@ -62,6 +64,7 @@ def compute_metrics_at_k(
 
         # DCG@k
         dcg = sum((val / math.log2(idx + 2)) for idx, val in enumerate(hits_in_k))
+
         # IDCG@k
         ideal_hits = [1] * min(len(gold_set), k)
         idcg = sum((val / math.log2(idx + 2)) for idx, val in enumerate(ideal_hits))
@@ -76,22 +79,20 @@ def compute_metrics_at_k(
 
     return recalls, ndcgs, mrr
 
-
 # ------------------------------------------------------------------
 # Dataset Normalization, Loading & Validation
 # ------------------------------------------------------------------
-
 def normalize_gold_page(p: Any) -> Tuple[str, int]:
     """Coerces both dict format {'doc_id': ..., 'page_num': ...} and tuple/list format to (doc_id, page_num)."""
     if isinstance(p, dict):
         if "doc_id" not in p or "page_num" not in p:
             raise ValueError(f"Malformed gold_page dict missing 'doc_id' or 'page_num': {p}")
         return str(p["doc_id"]), int(p["page_num"])
-    elif isinstance(p, (list, tuple)) and len(p) == 2:
+    elif isinstance(p, (list, tuple)) and len(p) >= 2:
         return str(p[0]), int(p[1])
     else:
         raise ValueError(f"Unrecognized gold_page item structure: {p}")
-    
+
 def load_and_validate_dataset(
     golden_path: str,
     retriever: MultimodalRetriever
@@ -111,29 +112,25 @@ def load_and_validate_dataset(
         for req_field in ["qid", "question", "gold_pages", "answerable"]:
             if req_field not in rec:
                 raise ValueError(f"Record missing required field '{req_field}': {rec}")
-
         qid = rec["qid"]
         if qid in seen_qids:
             raise ValueError(f"Duplicate qid detected: {qid}")
         seen_qids.add(qid)
 
-        # ----------------------------------------------------
-        # NORMALIZATION STEP:
-        # Convert List[Dict] -> List[Tuple[str, int]]
-        # ----------------------------------------------------
+        # NORMALIZATION STEP: Convert to List[Tuple[str, int]]
         rec["gold_pages"] = [normalize_gold_page(p) for p in rec["gold_pages"]]
 
-        # Check exclusion targets using the normalized pairs
+        # Check exclusion targets
         doc_ids = {doc_id for doc_id, _ in rec["gold_pages"]}
         if any(d in EXCLUDE_DOCS for d in doc_ids):
             continue
 
-        # Separate unanswerable records for CRAG evaluation
+        # Separate unanswerable records
         if not rec["answerable"]:
             unanswerable_records.append(rec)
             continue
 
-        # Fail loudly if any gold page ID does not exist in Qdrant
+        # Confirm target exists in Qdrant
         for doc_id, page_num in rec["gold_pages"]:
             if not retriever.id_exists(doc_id, page_num):
                 raise ValueError(
@@ -146,15 +143,14 @@ def load_and_validate_dataset(
     print(f"[Harness] Validated {len(eval_records)} answerable queries ({len(unanswerable_records)} unanswerable held out).")
     return eval_records, unanswerable_records
 
-
 # ------------------------------------------------------------------
 # Ablation Benchmark Execution
 # ------------------------------------------------------------------
 def run_evaluation(golden_path: str = GOLDEN_PATH, output_dir: str = RESULTS_DIR):
-    retriever = MultimodalRetriever()   
+    retriever = MultimodalRetriever()
     retriever.warmup()
-
     eval_set, unanswerable_set = load_and_validate_dataset(golden_path, retriever)
+
     os.makedirs(output_dir, exist_ok=True)
 
     # Annotate gold pages with verified page_type from Qdrant
@@ -168,7 +164,7 @@ def run_evaluation(golden_path: str = GOLDEN_PATH, output_dir: str = RESULTS_DIR
     latencies = {mode: [] for mode in RETRIEVAL_MODES}
 
     print("\n" + "=" * 70)
-    print(" Running Offline Retrieval Benchmark across 4 Study Arms")
+    print(f" Running Offline Retrieval Benchmark across {len(RETRIEVAL_MODES)} Study Arms")
     print("=" * 70)
 
     for idx, rec in enumerate(eval_set, 1):
@@ -176,19 +172,14 @@ def run_evaluation(golden_path: str = GOLDEN_PATH, output_dir: str = RESULTS_DIR
         gold_pages = [tuple(p) for p in rec["gold_pages"]]
 
         for mode in RETRIEVAL_MODES:
-            # === MODIFIED / ADDED: 1. Retrieve at SAVE_K with return_pools=True ===
+            # 1. Retrieve at SAVE_K with pools
             hits, lat, pools = retriever.search(mode, q, k=SAVE_K, return_pools=True)
-            
             latencies[mode].append(lat)
-            # Extract (doc_id, page_num) pairs for metric evaluation
-            retrieved_pages = [
-                (str(h["doc_id"]), int(h["page_num"]))
-                for h in hits
-                if "doc_id" in h and "page_num" in h
-            ]
-            
-            recalls, ndcgs, mrr = compute_metrics_at_k(retrieved_pages, gold_pages)
-            # Preserve rich hit metadata for offline deep analysis
+
+            # 2. Compute metrics (passing the actual hits list directly)
+            recalls, ndcgs, mrr = compute_metrics_at_k(hits, gold_pages)
+
+            # 3. Rich hits structure
             rich_hits = [
                 (
                     h.get("doc_id"),
@@ -200,7 +191,7 @@ def run_evaluation(golden_path: str = GOLDEN_PATH, output_dir: str = RESULTS_DIR
                 for h in hits
             ]
 
-            # Preserve internal candidate pools before fusion
+            # 4. Rich pools structure
             rich_pools = {
                 name: [
                     (
@@ -233,7 +224,6 @@ def run_evaluation(golden_path: str = GOLDEN_PATH, output_dir: str = RESULTS_DIR
             }
             detailed_results[mode].append(entry)
 
-
         if idx % 5 == 0 or idx == len(eval_set):
             print(f"Processed {idx}/{len(eval_set)} queries...")
 
@@ -241,10 +231,8 @@ def run_evaluation(golden_path: str = GOLDEN_PATH, output_dir: str = RESULTS_DIR
     # Results Aggregation and Breakdown Slicing
     # ------------------------------------------------------------------
     summary_table = {}
-
     for mode in RETRIEVAL_MODES:
         mode_data = detailed_results[mode]
-        total_q = len(mode_data)
 
         # Overall Metrics
         mean_r3 = np.mean([item["recalls"][3] for item in mode_data]) * 100
@@ -252,7 +240,6 @@ def run_evaluation(golden_path: str = GOLDEN_PATH, output_dir: str = RESULTS_DIR
         mean_mrr = np.mean([item["mrr"] for item in mode_data]) * 100
 
         # Page Type Breakdown (Recall@3)
-        # Sliced based on whether the primary gold page is text-dense or layout-heavy
         text_dense_q = [
             item for item in mode_data
             if item["gold_page_types"] and item["gold_page_types"][0] == PT_TEXT
@@ -302,7 +289,7 @@ def run_evaluation(golden_path: str = GOLDEN_PATH, output_dir: str = RESULTS_DIR
     print("=" * 90)
 
     # ------------------------------------------------------------------
-    # Print Secondary Slices (Hybrid-Routed vs Fusion-Unrouted)
+    # Print Secondary Slices Breakdown
     # ------------------------------------------------------------------
     print("\n" + "=" * 98)
     print("     SECONDARY SLICES BREAKDOWN (Recall@3: Routed vs Hybrid v2 vs Fusion Unrouted)")
@@ -317,14 +304,15 @@ def run_evaluation(golden_path: str = GOLDEN_PATH, output_dir: str = RESULTS_DIR
             sub_v2 = [r for r in detailed_results.get("hybrid_v2", []) if str(r.get(slice_field)) == k_val]
             sub_unrouted = [r for r in detailed_results["fusion_unrouted"] if str(r.get(slice_field)) == k_val]
 
-            r3_routed = np.mean([r["recalls"]["3"] for r in sub_routed]) * 100 if sub_routed else 0.0
-            r3_v2 = np.mean([r["recalls"]["3"] for r in sub_v2]) * 100 if sub_v2 else 0.0
-            r3_unrouted = np.mean([r["recalls"]["3"] for r in sub_unrouted]) * 100 if sub_unrouted else 0.0
+            r3_routed = np.mean([r["recalls"][3] for r in sub_routed]) * 100 if sub_routed else 0.0
+            r3_v2 = np.mean([r["recalls"][3] for r in sub_v2]) * 100 if sub_v2 else 0.0
+            r3_unrouted = np.mean([r["recalls"][3] for r in sub_unrouted]) * 100 if sub_unrouted else 0.0
 
             print(
                 f"  {k_val:<32} (N={q_count:2d} ) | Routed: {r3_routed:5.1f}% | "
                 f"Hybrid v2: {r3_v2:5.1f}% | Unrouted: {r3_unrouted:5.1f}%"
             )
+
     # ------------------------------------------------------------------
     # Save Artifacts
     # ------------------------------------------------------------------
