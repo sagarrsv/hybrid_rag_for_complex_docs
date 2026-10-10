@@ -190,9 +190,9 @@ def run_evaluation(golden_path: str = GOLDEN_PATH, output_dir: str = RESULTS_DIR
                 "multi_page": rec.get("multi_page", len(gold_pages) > 1),
                 "bucket": rec.get("bucket", "standard"),
                 "latency_sec": lat,
-                "recalls": recalls,
-                "ndcgs": ndcgs,
-                "mrr": mrr,
+                "recalls": {k: float(v) for k, v in recalls.items()},
+                "ndcgs": {k: float(v) for k, v in ndcgs.items()},
+                "mrr": float(mrr),
                 "hits": [(h["doc_id"], int(h["page_num"]), float(h["score"])) for h in hits]
             })
 
