@@ -150,7 +150,7 @@ def load_and_validate_dataset(
 # Ablation Benchmark Execution
 # ------------------------------------------------------------------
 def run_evaluation(golden_path: str = GOLDEN_PATH, output_dir: str = RESULTS_DIR):
-    retriever = MultimodalRetriever()
+    retriever = MultimodalRetriever()   
     retriever.warmup()
 
     eval_set, unanswerable_set = load_and_validate_dataset(golden_path, retriever)
@@ -196,7 +196,7 @@ def run_evaluation(golden_path: str = GOLDEN_PATH, output_dir: str = RESULTS_DIR
                 "hits": [(h["doc_id"], int(h["page_num"]), float(h["score"])) for h in hits]
             })
 
-        if idx % 10 == 0 or idx == len(eval_set):
+        if idx % 5 == 0 or idx == len(eval_set):
             print(f"Processed {idx}/{len(eval_set)} queries...")
 
     # ------------------------------------------------------------------
