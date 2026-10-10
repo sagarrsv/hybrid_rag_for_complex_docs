@@ -28,6 +28,7 @@ from config import (
     RETRIEVAL_MODES,
     PT_TEXT,
     PT_VISUAL,
+    SAVE_K,
     snapshot,
 )
 from retriever import MultimodalRetriever
@@ -175,26 +176,46 @@ def run_evaluation(golden_path: str = GOLDEN_PATH, output_dir: str = RESULTS_DIR
         gold_pages = [tuple(p) for p in rec["gold_pages"]]
 
         for mode in RETRIEVAL_MODES:
-            hits, lat = retriever.search(mode, q, k=MAX_K)
+            # === MODIFIED / ADDED: 1. Retrieve at SAVE_K with return_pools=True ===
+            hits, lat, pools = retriever.search(mode, q, k=SAVE_K, return_pools=True)
+            
             latencies[mode].append(lat)
+            retrieved_pages = [(h["doc_id"], int(h["page_num"])) for h in hits]
+            recalls, ndcgs, mrr = compute_metrics_at_k(retrieved_pages, gold_set)
 
-            recalls, ndcgs, mrr = compute_metrics_at_k(hits, gold_pages, K_VALUES)
-            detailed_results[mode].append({
+            # === MODIFIED / ADDED: 2. Save richer hits format and candidate pools ===
+            rich_hits = [
+                (h["doc_id"], int(h["page_num"]), float(h["score"]), h.get("page_type"), h.get("source"))
+                for h in hits
+            ]
+
+            rich_pools = {
+                name: [
+                    (p["doc_id"], int(p["page_num"]), float(p["score"]), p.get("page_type"))
+                    for p in pool
+                ]
+                for name, pool in (pools or {}).items()
+            }
+
+            entry = {
                 "qid": rec["qid"],
                 "question": q,
                 "gold_pages": gold_pages,
-                "gold_page_types": rec["gold_page_types"],
-                "evidence_type": rec.get("evidence_type", "unspecified"),
-                "difficulty": rec.get("difficulty", "unspecified"),
-                "reasoning_type": rec.get("reasoning_type", "unspecified"),
-                "multi_page": rec.get("multi_page", len(gold_pages) > 1),
+                "gold_page_types": rec.get("gold_page_types", []),
+                "evidence_type": rec.get("evidence_type", "unknown"),
+                "difficulty": rec.get("difficulty", "unknown"),
+                "reasoning_type": rec.get("reasoning_type", "unknown"),
+                "multi_page": rec.get("multi_page", False),
                 "bucket": rec.get("bucket", "standard"),
-                "latency_sec": lat,
-                "recalls": {k: float(v) for k, v in recalls.items()},
-                "ndcgs": {k: float(v) for k, v in ndcgs.items()},
+                "latency_sec": float(lat),
+                "recalls": recalls,
+                "ndcgs": ndcgs,
                 "mrr": float(mrr),
-                "hits": [(h["doc_id"], int(h["page_num"]), float(h["score"])) for h in hits]
-            })
+                "hits": rich_hits,
+                "pools": rich_pools,
+            }
+            detailed_results[mode].append(entry)
+
 
         if idx % 5 == 0 or idx == len(eval_set):
             print(f"Processed {idx}/{len(eval_set)} queries...")
@@ -266,20 +287,27 @@ def run_evaluation(golden_path: str = GOLDEN_PATH, output_dir: str = RESULTS_DIR
     # ------------------------------------------------------------------
     # Print Secondary Slices (Hybrid-Routed vs Fusion-Unrouted)
     # ------------------------------------------------------------------
-    print("\n" + "=" * 90)
-    print("     SECONDARY SLICES BREAKDOWN (Recall@3: Hybrid Routed vs Fusion Unrouted)")
-    print("=" * 90)
+    print("\n" + "=" * 98)
+    print("     SECONDARY SLICES BREAKDOWN (Recall@3: Routed vs Hybrid v2 vs Fusion Unrouted)")
+    print("=" * 98)
+    for slice_field in ["evidence_type", "difficulty", "reasoning_type", "multi_page", "bucket"]:
+        print(f"\n--- Breakdown by: {slice_field} ---")
+        base_recs = detailed_results["text"]
+        slice_keys = sorted(list({str(r.get(slice_field)) for r in base_recs}))
+        for k_val in slice_keys:
+            q_count = sum(1 for r in base_recs if str(r.get(slice_field)) == k_val)
+            sub_routed = [r for r in detailed_results["hybrid_routed"] if str(r.get(slice_field)) == k_val]
+            sub_v2 = [r for r in detailed_results.get("hybrid_v2", []) if str(r.get(slice_field)) == k_val]
+            sub_unrouted = [r for r in detailed_results["fusion_unrouted"] if str(r.get(slice_field)) == k_val]
 
-    for slice_key in ["evidence_type", "difficulty", "reasoning_type", "multi_page", "bucket"]:
-        print(f"\n--- Breakdown by: {slice_key} ---")
-        categories = set(item[slice_key] for item in detailed_results["hybrid_routed"])
-        for cat in sorted(categories, key=str):
-            sub_hr = [it for it in detailed_results["hybrid_routed"] if it[slice_key] == cat]
-            sub_fu = [it for it in detailed_results["fusion_unrouted"] if it[slice_key] == cat]
-            hr_r3 = np.mean([it["recalls"][3] for it in sub_hr]) * 100 if sub_hr else 0.0
-            fu_r3 = np.mean([it["recalls"][3] for it in sub_fu]) * 100 if sub_fu else 0.0
-            print(f"  {str(cat):<25} (N={len(sub_hr):<3}) | Hybrid Routed: {hr_r3:>6.1f}% | Fusion Unrouted: {fu_r3:>6.1f}%")
+            r3_routed = np.mean([r["recalls"]["3"] for r in sub_routed]) * 100 if sub_routed else 0.0
+            r3_v2 = np.mean([r["recalls"]["3"] for r in sub_v2]) * 100 if sub_v2 else 0.0
+            r3_unrouted = np.mean([r["recalls"]["3"] for r in sub_unrouted]) * 100 if sub_unrouted else 0.0
 
+            print(
+                f"  {k_val:<32} (N={q_count:2d} ) | Routed: {r3_routed:5.1f}% | "
+                f"Hybrid v2: {r3_v2:5.1f}% | Unrouted: {r3_unrouted:5.1f}%"
+            )
     # ------------------------------------------------------------------
     # Save Artifacts
     # ------------------------------------------------------------------

@@ -12,6 +12,7 @@ from retriever import MultimodalRetriever
 from generator import MultimodalGenerator
 from graph import build_rag_graph
 from evaluation.eval_harness import run_evaluation
+from config import RETRIEVAL_MODES
 from config import MAX_K, GOLDEN_PATH, RESULTS_DIR
 
 
@@ -22,7 +23,7 @@ def main():
     parser.add_argument("--out", type=str, default=RESULTS_DIR, help="Results output directory")
     parser.add_argument("--query", type=str, help="Question to evaluate through live graph")
     parser.add_argument("--mode", type=str, default="hybrid_routed",
-                        choices=["text", "visual", "hybrid_routed", "fusion_unrouted"],
+                        choices=RETRIEVAL_MODES,
                         help="Retrieval arm for single-query execution")
     parser.add_argument("--k", type=int, default=MAX_K, help="Candidate count limit")
     args = parser.parse_args()

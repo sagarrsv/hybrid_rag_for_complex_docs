@@ -54,13 +54,16 @@ GENERATOR_CONTEXT_PAGES = 3
 MAX_K = 10
 K_VALUES = [1, 3, 5, 10]
 CANDIDATE_POOL = 20
-TEXT_OVERFETCH = 6
+TEXT_OVERFETCH = 8
 RRF_K = 60
+
+# === MODIFIED / ADDED: Add SAVE_K = 20 for candidate pool logging ===
+SAVE_K = 20
 
 RETRIEVAL_MODES = ["text", "visual", "hybrid_routed", "fusion_unrouted"]
 
 GOLDEN_PATH = "evaluation/golden_dataset.json"
-RESULTS_DIR = "evaluation/results"
+RESULTS_DIR = "evaluation/results_v2"
 
 # Documents excluded from benchmark calculations (e.g., corrupted inputs or suspect runs)
 EXCLUDE_DOCS: Set[str] = {
@@ -94,6 +97,7 @@ def snapshot() -> Dict[str, Any]:
         "candidate_pool": CANDIDATE_POOL,
         "text_overfetch": TEXT_OVERFETCH,
         "rrf_k": RRF_K,
+        "save_k": SAVE_K,
         "retrieval_modes": RETRIEVAL_MODES,
         "exclude_docs": list(EXCLUDE_DOCS),
     }

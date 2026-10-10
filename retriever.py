@@ -63,141 +63,23 @@ class MultimodalRetriever:
             if key not in best or h["score"] > best[key]["score"]:
                 best[key] = h
         return sorted(best.values(), key=lambda h: -h["score"])[:k]
+    
+    def _text_filter(self) -> models.Filter:
+        return models.Filter(
+            must=[models.FieldCondition(key="page_type", match=models.MatchValue(value="text-dense"))]
+        )
 
+    def _layout_filter(self) -> models.Filter:
+        return models.Filter(
+            must=[models.FieldCondition(key="page_type", match=models.MatchValue(value="layout-heavy"))]
+        )
     def _encode_visual_query(self, query: str) -> List[List[float]]:
         """Encodes query text using ColModernVBertProcessor.process_queries."""
         batch_queries = self.vis_processor.process_queries([query]).to(DEVICE)
         with torch.no_grad():
             query_embeddings = self.vis_model(**batch_queries)
         return query_embeddings[0].cpu().float().numpy().tolist()
-
-    # ----------------------------------------------------
-    # Unified Dispatcher
-    # ----------------------------------------------------
-    def search(self, mode: str, query: str, k: int = MAX_K) -> Tuple[List[Dict[str, Any]], float]:
-        """Single entry point across evaluation harness and LangGraph."""
-        t0 = time.perf_counter()
-        if mode == "text":
-            hits = self.search_full_text(query, k)
-        elif mode == "visual":
-            hits = self.search_full_visual(query, k)
-        elif mode == "hybrid_routed":
-            hits = self.search_hybrid_routed(query, k)
-        elif mode == "fusion_unrouted":
-            hits = self.search_unrouted_fusion(query, k)
-        else:
-            raise ValueError(f"Unknown retrieval mode: {mode}")
-        latency = time.perf_counter() - t0
-        return hits, latency
-
-    # ----------------------------------------------------
-    # Mode 1: Full Text (Over-fetched by 4x, then collapsed to pages)
-    # ----------------------------------------------------
-    def search_full_text(self, query: str, k: int = MAX_K) -> List[Dict[str, Any]]:
-        dense_vec = self.text_model.encode(query, normalize_embeddings=True).tolist()
-        raw_hits = self._execute_text_query(
-            query_vector=dense_vec,
-            limit=k * TEXT_OVERFETCH,
-            filter_condition=None
-        )
-        return self._collapse_to_pages(raw_hits, k)
-
-    # ----------------------------------------------------
-    # Mode 2: Full Visual (Natively 1 vector per page, no collapse needed)
-    # ----------------------------------------------------
-    def search_full_visual(self, query: str, k: int = MAX_K) -> List[Dict[str, Any]]:
-        query_multivec = self._encode_visual_query(query)
-        return self._execute_visual_query(
-            query_vector=query_multivec,
-            limit=k,
-            filter_condition=None
-        )
-
-    # ----------------------------------------------------
-    # Mode 3: Hybrid Routed (Strictly partitioned by page_type)
-    # ----------------------------------------------------
-    def search_hybrid_routed(self, query: str, k: int = MAX_K) -> List[Dict[str, Any]]:
-        # Text Arm: filter text-dense, overfetch, collapse to CANDIDATE_POOL
-        text_filter = models.Filter(
-            must=[models.FieldCondition(key="page_type", match=models.MatchValue(value=PT_TEXT))]
-        )
-        dense_vec = self.text_model.encode(query, normalize_embeddings=True).tolist()
-        raw_text_hits = self._execute_text_query(
-            query_vector=dense_vec,
-            limit=CANDIDATE_POOL * TEXT_OVERFETCH,
-            filter_condition=text_filter
-        )
-        text_candidates = self._collapse_to_pages(raw_text_hits, CANDIDATE_POOL)
-
-        # Visual Arm: filter layout-heavy, direct fetch at CANDIDATE_POOL
-        vis_filter = models.Filter(
-            must=[models.FieldCondition(key="page_type", match=models.MatchValue(value=PT_VISUAL))]
-        )
-        query_multivec = self._encode_visual_query(query)
-        vis_candidates = self._execute_visual_query(
-            query_vector=query_multivec,
-            limit=CANDIDATE_POOL,
-            filter_condition=vis_filter
-        )
-
-        return self._fuse_rrf(text_candidates, vis_candidates, k)
-
-    # ----------------------------------------------------
-    # Mode 4: Fusion Unrouted (Ensemble Baseline)
-    # ----------------------------------------------------
-    def search_unrouted_fusion(self, query: str, k: int = MAX_K) -> List[Dict[str, Any]]:
-        # Text Arm: unfiltered, overfetch, collapse to CANDIDATE_POOL
-        dense_vec = self.text_model.encode(query, normalize_embeddings=True).tolist()
-        raw_text_hits = self._execute_text_query(
-            query_vector=dense_vec,
-            limit=CANDIDATE_POOL * TEXT_OVERFETCH,
-            filter_condition=None
-        )
-        text_candidates = self._collapse_to_pages(raw_text_hits, CANDIDATE_POOL)
-
-        # Visual Arm: unfiltered, direct fetch at CANDIDATE_POOL
-        query_multivec = self._encode_visual_query(query)
-        vis_candidates = self._execute_visual_query(
-            query_vector=query_multivec,
-            limit=CANDIDATE_POOL,
-            filter_condition=None
-        )
-
-        return self._fuse_rrf(text_candidates, vis_candidates, k)
-
-    # ----------------------------------------------------
-    # Fusion and Query Helpers
-    # ----------------------------------------------------
-    def _fuse_rrf(
-        self,
-        text_hits: List[Dict[str, Any]],
-        vis_hits: List[Dict[str, Any]],
-        k: int
-    ) -> List[Dict[str, Any]]:
-        """Reciprocal Rank Fusion on page-level candidate pools."""
-        doc_scores: Dict[Tuple[str, int], float] = {}
-        doc_map: Dict[Tuple[str, int], Dict[str, Any]] = {}
-
-        for rank, doc in enumerate(text_hits, 1):
-            key = (doc["doc_id"], doc["page_num"])
-            doc_scores[key] = doc_scores.get(key, 0.0) + (1.0 / (RRF_K + rank))
-            doc_map[key] = doc
-
-        for rank, doc in enumerate(vis_hits, 1):
-            key = (doc["doc_id"], doc["page_num"])
-            doc_scores[key] = doc_scores.get(key, 0.0) + (1.0 / (RRF_K + rank))
-            if key not in doc_map or doc_map[key]["source"] == "text_chunks":
-                doc_map[key] = doc
-
-        ranked_keys = sorted(doc_scores.keys(), key=lambda x: doc_scores[x], reverse=True)
-        results = []
-        for key in ranked_keys[:k]:
-            item = dict(doc_map[key])
-            item["score"] = doc_scores[key]
-            item["rrf_score"] = doc_scores[key]
-            results.append(item)
-        return results
-
+    
     def _execute_text_query(
         self,
         query_vector: List[float],
@@ -241,6 +123,115 @@ class MultimodalRetriever:
             "content": "",
             "score": float(h.score)
         } for h in hits]
+    # ----------------------------------------------------
+    # Unified Dispatcher
+    # ----------------------------------------------------
+    # === MODIFIED / ADDED: 1. Two standardized pool helpers ===
+    def _text_pool(self, dense_vec: list, flt: Optional[models.Filter] = None) -> List[Dict[str, Any]]:
+            raw = self._execute_text_query(dense_vec, CANDIDATE_POOL * TEXT_OVERFETCH, flt)
+            return self._collapse_to_pages(raw, CANDIDATE_POOL)
+
+    def _vis_pool(self, query_multivec: list, flt: Optional[models.Filter] = None) -> List[Dict[str, Any]]:
+        return self._execute_visual_query(query_multivec, CANDIDATE_POOL, flt)
+    # ----------------------------------------------------
+    # Fusion and Query Helpers
+    # ----------------------------------------------------
+    def _fuse_rrf(
+        self,
+        text_hits: List[Dict[str, Any]],
+        vis_hits: List[Dict[str, Any]],
+        k: int
+    ) -> List[Dict[str, Any]]:
+        """Reciprocal Rank Fusion on page-level candidate pools."""
+        doc_scores: Dict[Tuple[str, int], float] = {}
+        doc_map: Dict[Tuple[str, int], Dict[str, Any]] = {}
+
+        for rank, doc in enumerate(text_hits, 1):
+            key = (doc["doc_id"], doc["page_num"])
+            doc_scores[key] = doc_scores.get(key, 0.0) + (1.0 / (RRF_K + rank))
+            doc_map[key] = doc
+
+        for rank, doc in enumerate(vis_hits, 1):
+            key = (doc["doc_id"], doc["page_num"])
+            doc_scores[key] = doc_scores.get(key, 0.0) + (1.0 / (RRF_K + rank))
+            if key not in doc_map or doc_map[key]["source"] == "text_chunks":
+                doc_map[key] = doc
+
+        ranked_keys = sorted(doc_scores.keys(), key=lambda x: doc_scores[x], reverse=True)
+        results = []
+        for key in ranked_keys[:k]:
+            item = dict(doc_map[key])
+            item["score"] = doc_scores[key]
+            item["rrf_score"] = doc_scores[key]
+            results.append(item)
+        return results
+    
+
+
+    # ----------------------------------------------------
+    # Mode 1: Full Text (Over-fetched by 4x, then collapsed to pages)
+    # ----------------------------------------------------
+    def search_full_text(self, query: str, k: int = MAX_K) -> List[Dict[str, Any]]:
+        dense_vec = self.text_model.encode(query, normalize_embeddings=True).tolist()
+        return self._text_pool(dense_vec, flt=None)[:k]
+
+    # ----------------------------------------------------
+    # Mode 2: Full Visual (Natively 1 vector per page, no collapse needed)
+    # ----------------------------------------------------
+    def search_full_visual(self, query: str, k: int = MAX_K) -> List[Dict[str, Any]]:
+        query_multivec = self._encode_visual_query(query)
+        return self._vis_pool(query_multivec, flt=None)[:k]
+
+    # ----------------------------------------------------
+    # Mode 3: Hybrid Routed (Strictly partitioned by page_type)
+    # ----------------------------------------------------
+    def search_hybrid_routed(self, query: str, k: int = MAX_K) -> List[Dict[str, Any]]:
+        # Text Arm: filter text-dense, overfetch, collapse to CANDIDATE_POOL
+        dense_vec = self.text_model.encode(query, normalize_embeddings=True).tolist()
+        multivec = self._encode_visual_query(query)
+        text_pool = self._text_pool(dense_vec, self._text_filter())
+        vis_pool = self._vis_pool(multivec, self._layout_filter())
+        return self._fuse_rrf(text_pool, vis_pool, k), {"text": text_pool, "visual": vis_pool}
+
+    # ----------------------------------------------------
+    # Mode 4: Fusion Unrouted (Ensemble Baseline)
+    # ----------------------------------------------------
+    def search_unrouted_fusion(self, query: str, k: int = MAX_K) -> List[Dict[str, Any]]:
+        # Text Arm: unfiltered, overfetch, collapse to CANDIDATE_POOL
+        dense_vec = self.text_model.encode(query, normalize_embeddings=True).tolist()
+        multivec = self._encode_visual_query(query)
+        text_pool = self._text_pool(dense_vec, None)
+        vis_pool = self._vis_pool(multivec, None)
+        return self._fuse_rrf(text_pool, vis_pool, k), {"text": text_pool, "visual": vis_pool}
+    
+    # === MODIFIED / ADDED: 2. Add hybrid_v2 mode ===
+
+    def search_hybrid_v2(self, query: str, k: int = MAX_K):
+        text_pool = self._text_pool(self.text_model.encode(query, normalize_embeddings=True).tolist(), None)
+        vis_pool = self._vis_pool(self._encode_visual_query(query), self._layout_filter())
+        return self._fuse_rrf(text_pool, vis_pool, k), {"text": text_pool, "visual": vis_pool} 
+
+
+    # === MODIFIED / ADDED: 4. Dispatcher supporting hybrid_v2 and return_pools ===
+    def search(self, mode: str, query: str, k: int = MAX_K, return_pools: bool = False):
+        t0 = time.perf_counter()
+        pools = None
+        if mode == "text":
+            hits = self.search_full_text(query, k)
+        elif mode == "visual":
+            hits = self.search_full_visual(query, k)
+        elif mode == "hybrid_routed":
+            hits, pools = self.search_hybrid_routed(query, k)
+        elif mode == "fusion_unrouted":
+            hits, pools = self.search_unrouted_fusion(query, k)
+        elif mode == "hybrid_v2":
+            hits, pools = self.search_hybrid_v2(query, k)
+        else:
+            raise ValueError(mode)
+        latency = time.perf_counter() - t0
+        return (hits, latency, pools) if return_pools else (hits, latency)
+
+    
 
     # ----------------------------------------------------
     # Harness Validation & Benchmarking Helpers
