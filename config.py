@@ -59,7 +59,7 @@ RRF_K = 60
 
 RETRIEVAL_MODES = ["text", "visual", "hybrid_routed", "fusion_unrouted"]
 
-GOLDEN_PATH = "evaluation/golden_set.json"
+GOLDEN_PATH = "evaluation/golden_dataset.json"
 RESULTS_DIR = "evaluation/results"
 
 # Documents excluded from benchmark calculations (e.g., corrupted inputs or suspect runs)
