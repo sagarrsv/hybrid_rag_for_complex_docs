@@ -206,22 +206,25 @@ def run_evaluation(golden_path: str = GOLDEN_PATH, output_dir: str = RESULTS_DIR
             }
 
             entry = {
-                "qid": rec["qid"],
-                "question": q,
-                "gold_pages": gold_pages,
-                "gold_page_types": rec.get("gold_page_types", []),
-                "evidence_type": rec.get("evidence_type", "unknown"),
-                "difficulty": rec.get("difficulty", "unknown"),
-                "reasoning_type": rec.get("reasoning_type", "unknown"),
-                "multi_page": rec.get("multi_page", False),
-                "bucket": rec.get("bucket", "standard"),
-                "latency_sec": float(lat),
-                "recalls": recalls,
-                "ndcgs": ndcgs,
-                "mrr": float(mrr),
-                "hits": rich_hits,
-                "pools": rich_pools,
+             "qid": rec["qid"],
+             "question": q,
+             "split": rec.get("split", "dev"),
+             "gold_pages": gold_pages,
+             "gold_page_types": rec.get("gold_page_types", []),
+             "evidence_type": rec.get("evidence_type", "unknown"),
+             "difficulty": rec.get("difficulty", "unknown"),
+             "reasoning_type": rec.get("reasoning_type", "unknown"),
+             "multi_page": rec.get("multi_page", False),
+             "bucket": rec.get("bucket", "standard"),
+             "latency_sec": float(lat),
+             "recalls": recalls,
+             "ndcgs": ndcgs,
+             "mrr": float(mrr),
+             "hits": rich_hits,
+             "pools": rich_pools,
+
             }
+        
             detailed_results[mode].append(entry)
 
         if idx % 5 == 0 or idx == len(eval_set):
@@ -294,24 +297,27 @@ def run_evaluation(golden_path: str = GOLDEN_PATH, output_dir: str = RESULTS_DIR
     print("\n" + "=" * 98)
     print("     SECONDARY SLICES BREAKDOWN (Recall@3: Routed vs Hybrid v2 vs Fusion Unrouted)")
     print("=" * 98)
-    for slice_field in ["evidence_type", "difficulty", "reasoning_type", "multi_page", "bucket"]:
-        print(f"\n--- Breakdown by: {slice_field} ---")
-        base_recs = detailed_results["text"]
-        slice_keys = sorted(list({str(r.get(slice_field)) for r in base_recs}))
-        for k_val in slice_keys:
-            q_count = sum(1 for r in base_recs if str(r.get(slice_field)) == k_val)
-            sub_routed = [r for r in detailed_results["hybrid_routed"] if str(r.get(slice_field)) == k_val]
-            sub_v2 = [r for r in detailed_results.get("hybrid_v2", []) if str(r.get(slice_field)) == k_val]
-            sub_unrouted = [r for r in detailed_results["fusion_unrouted"] if str(r.get(slice_field)) == k_val]
+    for slice_field in ["split", "evidence_type", "difficulty", "reasoning_type", "multi_page", "bucket"]:
+     print(f"\n--- Breakdown by: {slice_field} ---")
+     base_recs = detailed_results["text"]
+     slice_keys = sorted(list({str(r.get(slice_field)) for r in base_recs}))
 
-            r3_routed = np.mean([r["recalls"][3] for r in sub_routed]) * 100 if sub_routed else 0.0
-            r3_v2 = np.mean([r["recalls"][3] for r in sub_v2]) * 100 if sub_v2 else 0.0
-            r3_unrouted = np.mean([r["recalls"][3] for r in sub_unrouted]) * 100 if sub_unrouted else 0.0
+     for k_val in slice_keys:
+         q_count = sum(1 for r in base_recs if str(r.get(slice_field)) == k_val)
+         sub_routed = [r for r in detailed_results["hybrid_routed"] if str(r.get(slice_field)) == k_val]
+         sub_v2 = [r for r in detailed_results.get("hybrid_v2", []) if str(r.get(slice_field)) == k_val]
+         sub_v2_2x = [r for r in detailed_results.get("hybrid_v2_2x", []) if str(r.get(slice_field)) == k_val]
+         sub_unrouted = [r for r in detailed_results["fusion_unrouted"] if str(r.get(slice_field)) == k_val]
 
-            print(
-                f"  {k_val:<32} (N={q_count:2d} ) | Routed: {r3_routed:5.1f}% | "
-                f"Hybrid v2: {r3_v2:5.1f}% | Unrouted: {r3_unrouted:5.1f}%"
-            )
+         r3_routed = np.mean([r["recalls"][3] for r in sub_routed]) * 100 if sub_routed else 0.0
+         r3_v2 = np.mean([r["recalls"][3] for r in sub_v2]) * 100 if sub_v2 else 0.0
+         r3_v2_2x = np.mean([r["recalls"][3] for r in sub_v2_2x]) * 100 if sub_v2_2x else 0.0
+         r3_unrouted = np.mean([r["recalls"][3] for r in sub_unrouted]) * 100 if sub_unrouted else 0.0
+
+         print(
+             f"  {k_val:<28} (N={q_count:2d}) | Routed: {r3_routed:5.1f}% | "
+             f"v2: {r3_v2:5.1f}% | v2_2x: {r3_v2_2x:5.1f}% | Unrouted: {r3_unrouted:5.1f}%"
+         )
 
     # ------------------------------------------------------------------
     # Save Artifacts

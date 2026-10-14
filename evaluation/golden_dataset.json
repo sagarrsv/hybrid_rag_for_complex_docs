@@ -978,7 +978,7 @@
       }
     ],
     "evidence_type": "text",
-    "difficulty": "hard_candidate",
+    "difficulty": "hard",
     "reasoning_type": "equation_to_algorithm_role_synthesis",
     "multi_page": true,
     "answerable": true
