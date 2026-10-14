@@ -141,19 +141,28 @@ class MultimodalRetriever:
         text_hits: List[Dict[str, Any]],
         vis_hits: List[Dict[str, Any]],
         k: int,
-        text_dense_mult: float = 1.0
+        decay_factor: float = None
     ) -> List[Dict[str, Any]]:
-        """Reciprocal Rank Fusion on page-level candidate pools."""
+        """Reciprocal Rank Fusion with an optional decayed second vote for text-dense pages."""
         doc_scores: Dict[Tuple[str, int], float] = {}
         doc_map: Dict[Tuple[str, int], Dict[str, Any]] = {}
 
+        # 1. Text Pool
         for rank, doc in enumerate(text_hits, 1):
             key = (doc["doc_id"], doc["page_num"])
-            # Adding weight parameter for 2x voting the text dense pages
-            weight = text_dense_mult if doc.get("page_type") == PT_TEXT else 1.0
-            doc_scores[key] = doc_scores.get(key, 0.0) + weight * (1.0 / (RRF_K + rank))
+            base_vote = 1.0 / (RRF_K + rank)
+            
+            # Apply decayed second vote for text-dense pages
+            if decay_factor and doc.get("page_type") == PT_TEXT:
+                second_vote = 1.0 / (RRF_K + (decay_factor * rank))
+                vote = base_vote + second_vote
+            else:
+                vote = base_vote
+                
+            doc_scores[key] = doc_scores.get(key, 0.0) + vote
             doc_map[key] = doc
 
+        # 2. Visual Pool
         for rank, doc in enumerate(vis_hits, 1):
             key = (doc["doc_id"], doc["page_num"])
             doc_scores[key] = doc_scores.get(key, 0.0) + (1.0 / (RRF_K + rank))
@@ -168,9 +177,6 @@ class MultimodalRetriever:
             item["rrf_score"] = doc_scores[key]
             results.append(item)
         return results
-    
-
-
     # ----------------------------------------------------
     # Mode 1: Full Text (Over-fetched by 4x, then collapsed to pages)
     # ----------------------------------------------------
@@ -207,19 +213,12 @@ class MultimodalRetriever:
         vis_pool = self._vis_pool(multivec, None)
         return self._fuse_rrf(text_pool, vis_pool, k), {"text": text_pool, "visual": vis_pool}
     
-    # === MODIFIED / ADDED: 2. Add hybrid_v2 mode ===
-    # === Mode 5: Hybrid v2 (Unfiltered Text + Layout-Filtered Visual) ===
+    # === MODIFIED / ADDED: 2. Add hybrid_v2 mode(Unfiltered Text + Layout-Filtered Visual) ===
+    # === Mode 5: Hybrid v2 (Decay 3 Winner) ===
     def search_hybrid_v2(self, query: str, k: int = MAX_K):
         text_pool = self._text_pool(self.text_model.encode(query, normalize_embeddings=True).tolist(), None)
         vis_pool = self._vis_pool(self._encode_visual_query(query), self._layout_filter())
-        return self._fuse_rrf(text_pool, vis_pool, k, text_dense_mult=1.0), {"text": text_pool, "visual": vis_pool}
-
-    # === Mode 6: Hybrid v2 with 2x Text-Dense Boost ===
-    def search_hybrid_v2_2x(self, query: str, k: int = MAX_K):
-        text_pool = self._text_pool(self.text_model.encode(query, normalize_embeddings=True).tolist(), None)
-        vis_pool = self._vis_pool(self._encode_visual_query(query), self._layout_filter())
-        return self._fuse_rrf(text_pool, vis_pool, k, text_dense_mult=2.0), {"text": text_pool, "visual": vis_pool}
- 
+        return self._fuse_rrf(text_pool, vis_pool, k, decay_factor=3.0), {"text": text_pool, "visual": vis_pool}
 
 
     # === MODIFIED / ADDED: 4. Dispatcher supporting hybrid_v2 and return_pools ===
@@ -234,10 +233,9 @@ class MultimodalRetriever:
             hits, pools = self.search_hybrid_routed(query, k)
         elif mode == "fusion_unrouted":
             hits, pools = self.search_unrouted_fusion(query, k)
-        elif mode == "hybrid_v2":
+        elif mode == "hybrid_v2_d3":
             hits, pools = self.search_hybrid_v2(query, k)
-        elif mode == "hybrid_v2_2x":
-            hits, pools = self.search_hybrid_v2_2x(query, k)
+
         else:
             raise ValueError(mode)
         latency = time.perf_counter() - t0

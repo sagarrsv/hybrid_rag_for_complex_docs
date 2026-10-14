@@ -60,10 +60,10 @@ RRF_K = 60
 # === MODIFIED / ADDED: Add SAVE_K = 20 for candidate pool logging ===
 SAVE_K = 20
 
-RETRIEVAL_MODES = ["text", "visual", "hybrid_routed", "fusion_unrouted", "hybrid_v2", "hybrid_v2_2x"]
+RETRIEVAL_MODES = ["text", "visual", "hybrid_routed", "fusion_unrouted", "hybrid_v2_d3"]
 
-GOLDEN_PATH = "evaluation/golden_dataset_merged.json"
-RESULTS_DIR = "evaluation/results_v3"
+GOLDEN_PATH = "evaluation/golden_dataset_v2.json"
+RESULTS_DIR = "evaluation/results_gen"
 
 # Documents excluded from benchmark calculations (e.g., corrupted inputs or suspect runs)
 EXCLUDE_DOCS: Set[str] = {
