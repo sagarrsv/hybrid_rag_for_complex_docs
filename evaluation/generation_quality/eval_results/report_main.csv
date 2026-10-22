@@ -1,0 +1,8 @@
+Metric,Result
+Questions evaluated,78
+Answer correctness,80.8% (63/78)
+Correctness given complete retrieval,92.5% (62/67)
+Complete gold-page retrieval,85.9% (67/78)
+"Faithfulness (Claude, unadjusted)",88.5% (69/78)
+Faithfulness (manually adjudicated),97.4% (76/78)
+"Adjudicated faithfulness, answered only",97.1% (67/69)

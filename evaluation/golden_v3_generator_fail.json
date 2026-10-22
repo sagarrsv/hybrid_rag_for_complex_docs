@@ -1,0 +1,308 @@
+[
+  {
+    "qid": "T-002",
+    "question": "Among the four detection frameworks where a ResNet-50 backbone was swapped for Swin-T, which one gained the most box AP, and what did that gain cost in inference speed?",
+    "answer": "Cascade Mask R-CNN gained the most: box AP rose from 46.3 to 50.5 (+4.2), while FPS dropped from 18.0 to 15.3.",
+    "gold_pages": [
+      {
+        "doc_id": "2103.14030_Swin_Transformer_Hierarchical_Vision_Transfo",
+        "page_num": 7
+      }
+    ],
+    "evidence_type": "table",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "medium",
+    "reasoning_type": "multi_hop_synthesis",
+    "split": "dev"
+  },
+  {
+    "qid": "T-007",
+    "question": "Which base-sized model without ImageNet-22K pretraining performs better for object detection with Cascade Mask R-CNN: ConvNeXt or Swin?",
+    "answer": "ConvNeXt-B performs better, achieving a box average precision of 52.7 compared to 51.9 for Swin-B, without ImageNet-22K pretraining.",
+    "gold_pages": [
+      {
+        "doc_id": "2201.03545_A_ConvNet_for_the_2020s",
+        "page_num": 8
+      }
+    ],
+    "evidence_type": "table",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "medium",
+    "reasoning_type": "comparison",
+    "split": "dev"
+  },
+  {
+    "qid": "T-010",
+    "question": "Which 4-bit quantization method yields a lower WikiText2 perplexity for the OPT-13B model?",
+    "answer": "GPTQ achieves a lower WikiText2 perplexity of 10.31 compared to 11.32 for RTN on the 4-bit OPT-13B model.",
+    "gold_pages": [
+      {
+        "doc_id": "2210.17323_GPTQ_Accurate_PostTraining_Quantization_for",
+        "page_num": 7
+      }
+    ],
+    "evidence_type": "table",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "easy",
+    "reasoning_type": "comparison",
+    "split": "dev"
+  },
+  {
+    "qid": "T-013",
+    "question": "For the ColPali ablations, how does the nDCG@5 performance of ColIdefics2 (64) compare to ColQwen2 (768) on the Shift subset?",
+    "answer": "ColQwen2 (768) achieves an nDCG@5 of 85.7 on the Shift subset, outperforming the 57.2 scored by ColIdefics2 (64).",
+    "gold_pages": [
+      {
+        "doc_id": "2407.01449_ColPali_Efficient_Document_Retrieval_with_Vi",
+        "page_num": 21
+      }
+    ],
+    "evidence_type": "table",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "easy",
+    "reasoning_type": "comparison",
+    "split": "dev"
+  },
+  {
+    "qid": "T-014",
+    "question": "In Corrective Retrieval Augmented Generation, how does the PopQA accuracy change for LLaMA2-hf-7b when search query rewriting is ablated?",
+    "answer": "When search query rewriting is ablated, the PopQA accuracy for LLaMA2-hf-7b drops from 54.9 to 51.7.",
+    "gold_pages": [
+      {
+        "doc_id": "2401.15884_Corrective_Retrieval_Augmented_Generation",
+        "page_num": 8
+      }
+    ],
+    "evidence_type": "table",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "medium",
+    "reasoning_type": "comparison",
+    "split": "dev"
+  },
+  {
+    "qid": "T-016",
+    "question": "At 3-bit with group size 128, on which OPT size does naive rounding degrade the most, and how far does the scaling-based method bring it back?",
+    "answer": "Naive rounding degrades most on OPT-2.7B, at 298.00 perplexity, and AWQ brings it down to 13.58.",
+    "gold_pages": [
+      {
+        "doc_id": "2306.00978_AWQ_Activationaware_Weight_Quantization_for",
+        "page_num": 4
+      }
+    ],
+    "evidence_type": "table",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "hard",
+    "reasoning_type": "multi_hop_synthesis",
+    "split": "dev"
+  },
+  {
+    "qid": "T-017",
+    "question": "Among the approximate attention baselines on Long-Range Arena, which one tops the Retrieval task yet still averages below FlashAttention?",
+    "answer": "Performer: it has the highest Retrieval score of 82.2 of any model but a lower average of 58.9 than FlashAttention (59.8), at a 1.8x speedup.",
+    "gold_pages": [
+      {
+        "doc_id": "2205.14135_FlashAttention_Fast_and_MemoryEfficient_Exa",
+        "page_num": 8
+      }
+    ],
+    "evidence_type": "table",
+    "difficulty": "hard",
+    "reasoning_type": "multi_hop_synthesis",
+    "multi_page": false,
+    "answerable": true,
+    "split": "dev"
+  },
+  {
+    "qid": "T-019",
+    "question": "Among the baselines reported from prior work on the multimodal science benchmark, which is the only one scoring higher on social science than natural science, and what is its grades 7-12 accuracy?",
+    "answer": "LLaMA-Adapter is the only prior-work baseline with higher social science (88.30) than natural science (84.37) accuracy, and its grades 7-12 accuracy is 84.05%.",
+    "gold_pages": [
+      {
+        "doc_id": "2304.08485_Visual_Instruction_Tuning",
+        "page_num": 9
+      }
+    ],
+    "evidence_type": "table",
+    "difficulty": "hard",
+    "reasoning_type": "multi_hop_synthesis",
+    "multi_page": false,
+    "answerable": true,
+    "split": "dev"
+  },
+  {
+    "qid": "F-001",
+    "question": "Which kind of memory waste takes up a larger share of the cache under Orca (Oracle) than under Orca (Pow2)?",
+    "answer": "The oracle system holds a larger percentage of its cache as reserved memory for future tokens compared to the power-of-two baseline.",
+    "gold_pages": [
+      {
+        "doc_id": "2309.06180_Efficient_Memory_Management_for_Large_Languag",
+        "page_num": 2
+      }
+    ],
+    "evidence_type": "figure",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "medium",
+    "reasoning_type": "comparison",
+    "split": "dev"
+  },
+  {
+    "qid": "F-004",
+    "question": "What happens to the final evaluation loss when the cosine cycle length is set to five times the actual number of training steps?",
+    "answer": "Setting the cosine schedule to five times the actual training duration prevents proper convergence, resulting in a higher final validation loss.",
+    "gold_pages": [
+      {
+        "doc_id": "2203.15556_Training_ComputeOptimal_Large_Language_Model",
+        "page_num": 23
+      }
+    ],
+    "evidence_type": "figure",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "medium",
+    "reasoning_type": "trend_or_extremum",
+    "split": "dev"
+  },
+  {
+    "qid": "F-007",
+    "question": "In a trace diagram for an encoder-decoder Transformer, how does total wall time change when the number of guessed tokens \u03b3 goes from 3 to 7, compared with standard decoding?",
+    "answer": "Wall time shrinks as \u03b3 rises: \u03b3 = 7 finishes first, \u03b3 = 3 next, and standard decoding takes longest. The larger \u03b3 also needs fewer large-model decoder calls (about 4 versus 7 for \u03b3 = 3).",
+    "gold_pages": [
+      {
+        "doc_id": "2211.17192_Fast_Inference_from_Transformers_via_Speculat",
+        "page_num": 6
+      }
+    ],
+    "evidence_type": "figure",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "medium",
+    "reasoning_type": "trend_or_extremum",
+    "split": "dev"
+  },
+  {
+    "qid": "F-008",
+    "question": "On easier MATH questions (difficulty level 2), does majority-vote accuracy keep rising as the test-time compute budget grows from 4 to 256 generations?",
+    "answer": "Yes. On difficulty level 2, majority-vote accuracy increases at every budget, from roughly 14% at 4 generations to roughly 47% at 256 generations, whereas beam search does not keep improving.",
+    "gold_pages": [
+      {
+        "doc_id": "2408.03314_Scaling_LLM_TestTime_Compute_Optimally_can_b",
+        "page_num": 9
+      }
+    ],
+    "evidence_type": "figure",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "medium",
+    "reasoning_type": "trend_or_extremum",
+    "split": "dev"
+  },
+  {
+    "qid": "F-010",
+    "question": "In the 5-layer ColBERT ablations, which design degrades MRR@10 more: removing query augmentation or using average similarity?",
+    "answer": "Using average similarity degrades MRR@10 more than removing query augmentation in the 5-layer ColBERT architecture.",
+    "gold_pages": [
+      {
+        "doc_id": "2004.12832_ColBERT_Efficient_and_Effective_Passage_Sear",
+        "page_num": 9
+      }
+    ],
+    "evidence_type": "figure",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "medium",
+    "reasoning_type": "comparison",
+    "split": "dev"
+  },
+  {
+    "qid": "F-011",
+    "question": "In few-shot ImageNet evaluation as JFT pre-training grows, which ViT variant never overtakes the smaller BiT ResNet?",
+    "answer": "The width-halved ViT-b/32. At 300M pre-training samples it reaches only about 40-41% 5-shot accuracy, below ResNet50x1 (BiT) at about 52%, while ViT-B/32, ViT-L/32 and ViT-L/16 all overtake it.",
+    "gold_pages": [
+      {
+        "doc_id": "2010.11929_An_Image_is_Worth_16x16_Words_Transformers_f",
+        "page_num": 7
+      }
+    ],
+    "evidence_type": "figure",
+    "difficulty": "hard",
+    "reasoning_type": "multi_hop_synthesis",
+    "multi_page": false,
+    "answerable": true,
+    "split": "dev"
+  },
+  {
+    "qid": "F-014",
+    "question": "In the parallelization scheme for attention, which worker handles the fewest blocks in the forward pass but the most in the backward pass?",
+    "answer": "Worker 1: it covers 1 block in the forward pass (the triangular shading grows by one block per worker) and all 5 blocks of its column in the backward pass.",
+    "gold_pages": [
+      {
+        "doc_id": "2307.08691_FlashAttention2_Faster_Attention_with_Bette",
+        "page_num": 8
+      }
+    ],
+    "evidence_type": "figure",
+    "difficulty": "hard",
+    "reasoning_type": "multi_hop_synthesis",
+    "multi_page": false,
+    "answerable": true,
+    "split": "dev"
+  },
+  {
+    "qid": "F-015",
+    "question": "Which evaluation benchmarks show a performance decline from ViT-L to ViT-H when pretrained on ImageNet-22k, but a performance improvement when pretrained on LVD-142M?",
+    "answer": "Cars, AmsterTime and Oxford-H. The ImageNet-22k curve dips at ViT-H on all three, while the LVD142M curve rises at every model size.",
+    "gold_pages": [
+      {
+        "doc_id": "2304.07193_DINOv2_Learning_Robust_Visual_Features_witho",
+        "page_num": 9
+      }
+    ],
+    "evidence_type": "figure",
+    "difficulty": "hard",
+    "reasoning_type": "trend_or_extremum",
+    "multi_page": false,
+    "answerable": true,
+    "split": "dev"
+  },
+  {
+    "qid": "F-016",
+    "question": "What is the performance ranking of all LLM backbones on MMBench-CN in the LLaVA-1.5 ablation study, from highest to lowest?",
+    "answer": "Vicuna-v1.5 > LLaMA-2-Chat > Vicuna-v1.3 > Vicuna-v1.1.",
+    "gold_pages": [
+      {
+        "doc_id": "2310.03744_Improved_Baselines_with_Visual_Instruction_Tu",
+        "page_num": 7
+      }
+    ],
+    "evidence_type": "figure",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "hard",
+    "reasoning_type": "trend_or_extremum",
+    "split": "test"
+  },
+  {
+    "qid": "X-042",
+    "question": "How can false positives in final-answer checking affect the apparent advantage of process supervision on MATH?",
+    "answer": "Solutions can reach the correct final answer through incorrect reasoning. Final-answer checking accepts such solutions, which may make process supervision appear more advantageous; the authors suggest this issue may be especially pronounced on MATH.",
+    "gold_pages": [
+      {
+        "doc_id": "2305.20050_Lets_Verify_Step_by_Step",
+        "page_num": 9
+      }
+    ],
+    "evidence_type": "text",
+    "multi_page": false,
+    "answerable": true,
+    "difficulty": "medium",
+    "reasoning_type": "why_rationale",
+    "split": "test"
+  }
+]
