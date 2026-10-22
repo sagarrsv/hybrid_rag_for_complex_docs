@@ -1,0 +1,24 @@
+{
+  "completed_queries": 78,
+  "queries_missing_actual_usage": 0,
+  "actual_generation": {
+    "input_tokens": 287969,
+    "output_tokens": 53090,
+    "total_tokens": 341059
+  },
+  "gemini_counted_input": {
+    "text_image": 0,
+    "image_only": 0,
+    "savings": 0
+  },
+  "groq_projected_input": {
+    "text_image": 0,
+    "image_only": 0,
+    "savings": 0
+  },
+  "per_query_average": {
+    "actual_total_tokens": 4372.551282051282,
+    "groq_text_image_input": 0.0,
+    "groq_image_only_input": 0.0
+  }
+}
