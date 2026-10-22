@@ -19,7 +19,7 @@
   {
     "qid": "T-002",
     "question": "Among the four detection frameworks where a ResNet-50 backbone was swapped for Swin-T, which one gained the most box AP, and what did that gain cost in inference speed?",
-    "answer": "Cascade Mask R-CNN gained the mst: box AP rose from 46.3 to 50.5 (+4.2), while FPS dropped from 18.0 to 15.3.",
+    "answer": "Cascade Mask R-CNN gained the most: box AP rose from 46.3 to 50.5 (+4.2), while FPS dropped from 18.0 to 15.3.",
     "gold_pages": [
       {
         "doc_id": "2103.14030_Swin_Transformer_Hierarchical_Vision_Transfo",
