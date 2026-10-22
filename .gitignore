@@ -12,3 +12,11 @@ venv/
 *.png
 *.jpg
 ingestion_timing.json
+.env
+.DS_Store
+.env
+__pycache__/
+*.pyc
+evaluation/generation_quality/eval_results/*
+!evaluation/generation_quality/eval_results/report_*.csv
+!evaluation/generation_quality/eval_results/report_tables.md
