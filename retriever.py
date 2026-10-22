@@ -289,6 +289,6 @@ class MultimodalRetriever:
         """Runs one query through each arm to clear first-run on-disk index latency."""
         print("[Retriever] Warming up vector indices and query encoders...")
         dummy_query = "benchmark system warmup query"
-        for mode in ["text", "visual", "hybrid_routed", "fusion_unrouted"]:
+        for mode in ["text", "visual", "hybrid_routed", "fusion_unrouted", "hybrid_v2_d3"]:
             self.search(mode, dummy_query, k=1)
         print("[Retriever] Warmup complete.")

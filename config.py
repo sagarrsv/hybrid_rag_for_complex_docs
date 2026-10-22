@@ -9,7 +9,9 @@ and canonical page-type labels.
 import os
 from typing import Dict, Any, Set
 import torch
+from dotenv import load_dotenv
 
+load_dotenv()
 # ------------------------------------------------------------------
 # 1. Canonical Page-Type Labels (Matches Classifier Output)
 # ------------------------------------------------------------------
@@ -42,14 +44,42 @@ else:
     DEVICE = torch.device("cpu")
     VIS_QUERY_DTYPE = torch.float32
 
-# Generator Configuration
-GENERATOR_MODEL_NAME = "qwen2.5:1.5b"
-GENERATOR_TEMPERATURE = 0.0
-GENERATOR_MAX_TOKENS = 512
-GENERATOR_CONTEXT_PAGES = 3
 
 # ------------------------------------------------------------------
-# 4. Retrieval & Evaluation Hyperparameters
+# 4. Multimodal Generator Configuration
+# ------------------------------------------------------------------
+
+GENERATOR_MODEL_NAME = os.getenv(
+    "GENERATOR_MODEL_NAME",
+    "gemini-3.8-flash",
+)
+
+GENERATOR_TEMPERATURE = 0.0
+GENERATOR_MAX_TOKENS = 8192
+
+# Three retrieved pages per generation request.
+GENERATOR_CONTEXT_PAGES = 3
+GENERATOR_RETRIEVAL_MODE = "hybrid_v2_d3"
+
+# Directory containing original paper PDFs.
+# PDF filename stem must match Qdrant doc_id.
+PDF_ROOT = os.getenv("PDF_ROOT",
+                     "/Users/sagar_rsv/Desktop/multimodal_doc_crag/modern_ai_corpus_raw_pdfs")
+
+# Render layout-heavy pages as images.
+PAGE_IMAGE_DPI = int(os.getenv("PAGE_IMAGE_DPI", "150"))
+
+# Gemini quota supplied from AI Studio dashboard.
+GENERATOR_RPM = 1
+GENERATOR_TPM = 250000
+GENERATOR_RPD = 20
+
+# Independent generation evaluation results.
+GENERATION_RESULTS_DIR = "evaluation/results_generation"
+
+
+# ------------------------------------------------------------------
+# 5. Retrieval & Evaluation Hyperparameters
 # ------------------------------------------------------------------
 MAX_K = 10
 K_VALUES = [1, 3, 5, 10]
@@ -62,7 +92,7 @@ SAVE_K = 20
 
 RETRIEVAL_MODES = ["text", "visual", "hybrid_routed", "fusion_unrouted", "hybrid_v2_d3"]
 
-GOLDEN_PATH = "evaluation/golden_dataset_v2.json"
+GOLDEN_PATH = "evaluation/golden_dataset_v3.json"
 RESULTS_DIR = "evaluation/results_gen"
 
 # Documents excluded from benchmark calculations (e.g., corrupted inputs or suspect runs)
@@ -100,4 +130,10 @@ def snapshot() -> Dict[str, Any]:
         "save_k": SAVE_K,
         "retrieval_modes": RETRIEVAL_MODES,
         "exclude_docs": list(EXCLUDE_DOCS),
+        "generator_retrieval_mode": GENERATOR_RETRIEVAL_MODE,
+        "pdf_root": PDF_ROOT,
+        "page_image_dpi": PAGE_IMAGE_DPI,
+        "generator_rpm": GENERATOR_RPM,
+        "generator_tpm": GENERATOR_TPM,
+        "generator_rpd": GENERATOR_RPD,
     }
