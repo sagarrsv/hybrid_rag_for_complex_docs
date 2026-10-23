@@ -20,7 +20,7 @@ Grounded Multimodal QA: LangGraph-based answer generation with page citations an
 
 System Architecture
 
-<img width="1416" height="2420" alt="mermaid-diagram" src="https://github.com/user-attachments/assets/222de172-f49e-4c1d-9594-3bf71f01e574" />
+<img width="968" height="1774" alt="mermaid-diagram (1)" src="https://github.com/user-attachments/assets/42e74641-71ce-4922-bd8e-9ae726062430" />
 
 
 The system consists of three main stages:
