@@ -34,6 +34,12 @@ flowchart TD
     H --> I[Multimodal LLM]
     Q --> I
     I --> J[Answer + page citations]
+
+    classDef navy fill:#0b2035,stroke:#2a4365,color:#7db3ec,stroke-width:1px
+    classDef grey fill:#3f4044,stroke:#8fa8e8,color:#e6e6e6,stroke-width:1px
+
+    class A,C,D,E,F,H,I,J,Q navy
+    class B,G grey
 ```
 
 The system consists of three main stages:
@@ -44,7 +50,3 @@ Hybrid Retrieval: BGE-M3 retrieves relevant text while ColModernVBERT searches l
 
 Answer Generation: A LangGraph pipeline assembles retrieved page text and images, passes them to a multimodal LLM, and returns an evidence-grounded answer with page-level citations.
 
-```mermaid
-flowchart TD
-    A --> B
-```
