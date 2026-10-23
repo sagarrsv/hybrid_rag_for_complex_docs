@@ -21,14 +21,13 @@ Grounded Multimodal QA: LangGraph-based answer generation with page citations an
 System Architecture
 
 ```mermaid
-%%{init: {'flowchart': {'nodeSpacing': 12, 'rankSpacing': 18, 'padding': 4}, 'themeVariables': {'fontSize': '12px'}}}%%
 flowchart TD
     A[Research PDFs] --> B[Page classification]
     B --> C[Text chunking + BGE-M3]
     B -->|layout-heavy| D[ColModernVBERT]
     C --> E[(Qdrant text)]
     D --> F[(Qdrant visual)]
-    E --> G[Hybrid V2 retriever<br/>decayed RRF → top-3 pages]
+    E --> G[Hybrid V2 retriever<br/>decayed RRF, top-3 pages]
     F --> G
     Q([User question]) --> G
     G --> H[Context builder]
