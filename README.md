@@ -20,7 +20,22 @@ Grounded Multimodal QA: LangGraph-based answer generation with page citations an
 
 System Architecture
 
-<img width="968" height="1774" alt="mermaid-diagram (1)" src="https://github.com/user-attachments/assets/42e74641-71ce-4922-bd8e-9ae726062430" />
+```mermaid
+%%{init: {'flowchart': {'nodeSpacing': 12, 'rankSpacing': 18, 'padding': 4}, 'themeVariables': {'fontSize': '12px'}}}%%
+flowchart TD
+    A[Research PDFs] --> B[Page classification]
+    B --> C[Text chunking + BGE-M3]
+    B -->|layout-heavy| D[ColModernVBERT]
+    C --> E[(Qdrant text)]
+    D --> F[(Qdrant visual)]
+    E --> G[Hybrid V2 retriever<br/>decayed RRF → top-3 pages]
+    F --> G
+    Q([User question]) --> G
+    G --> H[Context builder]
+    H --> I[Multimodal LLM]
+    Q --> I
+    I --> J[Answer + page citations]
+```
 
 
 The system consists of three main stages:
