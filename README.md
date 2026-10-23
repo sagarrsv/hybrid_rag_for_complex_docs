@@ -27,10 +27,11 @@ flowchart TD
     B -->|layout-heavy| D[ColModernVBERT]
     C --> E[(Qdrant text)]
     D --> F[(Qdrant visual)]
-    E --> G[Hybrid V2 retriever<br/>decayed RRF, top-3 pages]
+    E --> G[Hybrid V2 retriever]
     F --> G
     Q([User question]) --> G
-    G --> H[Context builder]
+    G --> R[Decayed RRF, top-3 pages]
+    R --> H[Context builder]
     H --> I[Multimodal LLM]
     Q --> I
     I --> J[Answer + page citations]
@@ -39,7 +40,7 @@ flowchart TD
     classDef grey fill:#3f4044,stroke:#8fa8e8,color:#e6e6e6,stroke-width:1px
 
     class A,C,D,E,F,H,I,J,Q navy
-    class B,G grey
+    class B,G,R grey
 ```
 
 The system consists of three main stages:
