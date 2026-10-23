@@ -1,9 +1,15 @@
 pymupdf
 langchain-text-splitters
-langchain-google-genai
 transformers
 colpali-engine
 torch
 pillow
 sentence-transformers
 qdrant-client
+langgraph
+numpy
+langchain-core
+langchain-google-genai
+langchain-groq
+pydantic>=2
+google-genai

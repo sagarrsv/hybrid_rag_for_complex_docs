@@ -1,0 +1,5 @@
+Group,Gen (s),Total (s),Input tokens,Output tokens,Total tokens
+Overall,46.7,48.7,"3,692",681,"4,373"
+Text,25.3,27.4,"3,716",541,"4,257"
+Table,59.3,61.1,"3,667",797,"4,464"
+Figure,89.3,91.1,"3,657",918,"4,575"
