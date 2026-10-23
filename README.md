@@ -121,3 +121,61 @@ The results highlight the importance of retrieving complete supporting evidence 
 - [Retrieval Metrics](evaluation/results_retrieval/v3_dataset/v3_ablation_metrics_summary.csv)
 - [Generation Evaluation](evaluation/generation_quality/eval_results/report_tables.md)
 - [Ingestion Efficiency](ingestion/reports/ingestion_efficiency_report%20%281%29.md)
+
+## Setup & Usage
+
+**Prerequisites:** Python, Qdrant, required embedding models, and API credentials for multimodal generation and evaluation.
+
+```bash
+pip install -r requirements.txt
+```
+
+Configure the required environment variables, including `QDRANT_URL`, `PDF_ROOT`, and the relevant API keys. Ensure Qdrant is running and the document collections are populated.
+
+### Run the RAG Pipeline
+
+```bash
+# Single query (defaults to Hybrid V2 Decay@3)
+python main.py --query "How does FlashAttention reduce memory usage?"
+
+# Generate retrieval benchmark results
+python main.py --eval retrieval
+
+# Generate answer predictions
+python main.py --eval generation --experiment retrieved
+```
+
+### Evaluate Saved Results
+
+**Retrieval evaluation:**
+
+```bash
+python evaluation/retrieval_tests/v3_analysis.py \
+  --file evaluation/results_retrieval/v3_dataset/benchmark_results.json \
+  --out_dir evaluation/results_retrieval/v3_dataset
+```
+
+**Generation evaluation (offline metrics):**
+
+```bash
+python evaluation/generation_quality/evaluate.py offline \
+  --predictions evaluation/results_generation/v3_dataset/gemini-3.8-flash/retrieved/predictions.jsonl \
+  --golden evaluation/golden_dataset_v3.json
+```
+
+The generation evaluation additionally uses correctness and faithfulness judges. See the [Generation Evaluation Guide](evaluation/generation_quality/README.md) for the complete judging and reporting workflow.
+
+## Repository Structure
+
+```text
+├── ingestion/          # PDF processing and indexing
+├── evaluation/         # Golden datasets, evaluation scripts, and results
+├── config.py           # System configuration
+├── retriever.py        # Retrieval strategies
+├── context_builder.py  # Retrieved evidence preparation
+├── generator.py        # Multimodal answer generation
+├── graph.py            # LangGraph workflow
+├── main.py             # Main CLI entry point
+├── run_ingestion.py    # Ingestion CLI
+└── requirements.txt    # Python dependencies
+```
