@@ -36,7 +36,6 @@ flowchart TD
     I --> J[Answer + page citations]
 ```
 
-
 The system consists of three main stages:
 
 Document Ingestion: PDFs are classified by page layout and processed into text and visual embeddings. Hybrid V2 retains text embeddings for all pages and requires visual embeddings only for layout-heavy pages.
@@ -44,3 +43,8 @@ Document Ingestion: PDFs are classified by page layout and processed into text a
 Hybrid Retrieval: BGE-M3 retrieves relevant text while ColModernVBERT searches layout-heavy pages. Decayed Reciprocal Rank Fusion combines both rankings and selects the top relevant pages.
 
 Answer Generation: A LangGraph pipeline assembles retrieved page text and images, passes them to a multimodal LLM, and returns an evidence-grounded answer with page-level citations.
+
+```mermaid
+flowchart TD
+    A --> B
+```
