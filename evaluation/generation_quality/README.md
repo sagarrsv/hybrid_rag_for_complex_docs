@@ -51,7 +51,7 @@ First **prepare** batch requests offline (does not call API):
 ```bash
 python evaluation/generation_quality/evaluate.py prepare-batch \
   --predictions "evaluation/results_generation/v3_dataset/gemini_38_flash/gen_fail_test/gemini-3.8-flash/retrieved/predictions.jsonl" \
-  --pdf-dir "/Users/sagar_rsv/Desktop/multimodal_doc_crag/modern_ai_corpus_raw_pdfs" \
+  --pdf-dir "$PDFDIR" \
   --dpi 150 \
   --output evaluation/generation_quality/eval_results/claude_requests.json \
   --manifest evaluation/generation_quality/eval_results/claude_manifest.jsonl
