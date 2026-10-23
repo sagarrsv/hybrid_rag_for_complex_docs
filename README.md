@@ -72,3 +72,52 @@ Initial experiments showed that strict page-type routing (**Hybrid Routed (V1): 
 This design preserves strong multimodal retrieval performance while offering estimated reductions of **36.1% in raw vector storage** and **25.8% in embedding/classification processing time** compared with full visual indexing.
 
 Detailed comparisons are presented in the evaluations/results_retrieval section.
+
+## Experimental Results
+
+Evaluated on **78 curated questions across 95 research papers**, covering text, tables, figures, equations, and multi-step reasoning.
+
+### 1. Retrieval Performance
+
+| Strategy | Recall@3 | NDCG@3 | MRR |
+|---|---:|---:|---:|
+| Text-only | 83.3% | 75.6% | 75.4% |
+| Visual-only | 84.0% | 72.7% | 71.3% |
+| Hybrid Routed (V1) | 71.2% | 53.5% | 52.5% |
+| Unrouted Fusion | 87.2% | **79.4%** | **79.1%** |
+| **Hybrid V2** | **87.8%** | 79.1% | 77.9% |
+
+**Key finding:** Hybrid V2 achieved the highest Recall@3, while Unrouted Fusion slightly outperformed it on ranking quality (NDCG@3 and MRR).
+
+### 2. Indexing Efficiency
+
+Estimated indexing requirements compared with full visual indexing:
+
+| Metric | Full Visual | Hybrid V2 |
+|---|---:|---:|
+| Raw vector storage | 707.22 MiB | 451.72 MiB |
+| Embedding + classification time | 117.66 min | 87.36 min |
+| **Reduction** | — | **36.1% storage / 25.8% time** |
+
+Hybrid V2 avoids visual embeddings for 42.3% of pages, while retaining text representations across the entire corpus.
+
+*Note: Efficiency figures are modeled from recorded embedding and classification timings, not independently measured end-to-end deployment savings.*
+
+### 3. End-to-End Generation Quality
+
+Using Gemini 3.8 Flash with Hybrid V2 retrieval:
+
+| Metric | Result |
+|---|---:|
+| Answer correctness | **80.8% (63/78)** |
+| Correctness with complete gold-page retrieval | 92.5% (62/67) |
+| Complete gold-page retrieval | 85.9% (67/78) |
+| Manually adjudicated faithfulness | **97.4% (76/78)** |
+
+The results highlight the importance of retrieving complete supporting evidence before answer generation. Faithfulness measures whether claims are supported by retrieved evidence and is distinct from answer correctness.
+
+**Detailed Reports:**
+- [Retrieval Ablation Analysis](evaluation/results_retrieval/v3_dataset/v3_deep_analysis_report.md)
+- [Retrieval Metrics](evaluation/results_retrieval/v3_dataset/v3_ablation_metrics_summary.csv)
+- [Generation Evaluation](evaluation/generation_quality/eval_results/report_tables.md)
+- [Ingestion Efficiency](ingestion/reports/ingestion_efficiency_report%20%281%29.md)
